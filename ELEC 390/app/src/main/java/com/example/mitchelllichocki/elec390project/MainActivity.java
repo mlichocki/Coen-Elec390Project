@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         names.add("Mitch");
-        names.add("Connor");
-        names.add("Marie");
+        names.add("Felix");
+        names.add("Matt");
 
     }
 

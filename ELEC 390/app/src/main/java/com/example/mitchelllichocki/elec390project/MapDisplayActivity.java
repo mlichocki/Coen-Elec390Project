@@ -8,6 +8,8 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -21,6 +23,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
+import static com.example.mitchelllichocki.elec390project.R.id.spinner;
+import static com.example.mitchelllichocki.elec390project.R.menu.menu_actionbar;
+
 //Extends FragmentActivity and implements OnMapReadyCallback in order to make map functional
 public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
@@ -29,7 +34,7 @@ public class MapDisplayActivity extends AppCompatActivity
     Marker marker = null;
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>();
-    String previous = null;
+    String previous = "", childSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +47,7 @@ public class MapDisplayActivity extends AppCompatActivity
         names = intent.getStringArrayListExtra("names");
 
         //By default the first child in the ArrayList is displayed
-        final String childSelected = names.get(0);
+        childSelected = names.get(0);
 
                 //set the back button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -59,16 +64,7 @@ public class MapDisplayActivity extends AppCompatActivity
         handler.postDelayed(new Runnable() {
             @Override
             public void run(){
-                //Retrieve the coordinates
-                getLatLong(childSelected);
-                //Remove the marker of the "old" position
-                marker.remove();
-                //Add a new marker at for the newest positions
-                marker = map.addMarker(new MarkerOptions()
-                        .position(new LatLng(latitude, longitude))
-                        .title("Marker"));
-                //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+                updateMapDisplay(childSelected);
                 //Run this script every 10 seconds
                 handler.postDelayed(this, refreshRate);
             }
@@ -84,7 +80,7 @@ public class MapDisplayActivity extends AppCompatActivity
         //set the starting position marker
         marker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
-                .title("Marker"));
+                .title("Lat: " + latitude + " | " + "Long: " + longitude));
 
         //Set the map to a basic grid style
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -95,33 +91,6 @@ public class MapDisplayActivity extends AppCompatActivity
         //Assign the Google Map object "map" to this map
         this.map = map;
     }
-
-    //Retrieve the latitude and longitude of the most recent position
-    public void getLatLong(String name){
-
-        if(previous != name) {
-            //Just to test updating the map, to be replaced by method for retrieving coordinates
-            switch (name) {
-                case "Mitch":
-                    latitude = 45.474541;
-                    longitude = -73.841568;
-                    break;
-                case "Marie":
-                    latitude = 45.511324;
-                    longitude = -73.702861;
-                    break;
-                case "Connor":
-                    latitude = 45.473052;
-                    longitude = -73.737033;
-
-            }
-        }
-
-        previous = name;
-        latitude = latitude + 0.25;
-        longitude = longitude + 0.25;
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -138,16 +107,87 @@ public class MapDisplayActivity extends AppCompatActivity
     //Create the action bar, this generates the drop down menu for the kids' names
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_actionbar, menu);
+        getMenuInflater().inflate(menu_actionbar, menu);
 
-        MenuItem item = menu.findItem(R.id.spinner);
-        Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+        MenuItem item = menu.findItem(spinner);
+        final Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter(this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, names);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                childSelected = spinner.getSelectedItem().toString().trim();
+                //Retrieve the coordinates
+                getLatLong(childSelected);
+                //Remove the marker of the "old" position
+                marker.remove();
+                //Add a new marker at for the newest positions
+                marker = map.addMarker(new MarkerOptions()
+                        .position(new LatLng(latitude, longitude))
+                        .title("Lat: " + latitude + " | " + "Long: " + longitude));
+                //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         return true;
+    }
+
+    private void updateMapDisplay(String name){
+        //Retrieve the coordinates
+        getLatLong(name);
+        //Remove the marker of the "old" position
+        marker.remove();
+        //Add a new marker at for the newest positions
+        marker = map.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title(name).snippet("Lat: " + latitude + "\n" + "Long: " + longitude));
+        //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+    }
+
+    //Retrieve the latitude and longitude of the most recent position
+    public void getLatLong(String name){
+
+        if(!previous.equals(name)) {
+            //Just to test updating the map, to be replaced by method for retrieving coordinates
+            switch (name) {
+                case "Mitch":
+                    latitude = 45.474541;
+                    longitude = -73.841568;
+                    break;
+                case "Felix":
+                    latitude = 45.511324;
+                    longitude = -73.702861;
+                    break;
+                case "Matt":
+                    latitude = 45.473052;
+                    longitude = -73.737033;
+                    break;
+            }
+            previous = name;
+            return;
+        }
+
+        //code to be removed, used to verify changing coordinates
+        previous = name;
+        latitude = latitude + 0.25;
+        longitude = longitude + 0.25;
+
+        /*
+
+         */
     }
 }
