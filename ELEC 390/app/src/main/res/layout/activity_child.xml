@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.mitchelllichocki.elec390project.MainActivity">
+    tools:context="com.example.mitchelllichocki.elec390project.ChildActivity">
 
     <Button
         android:text="Button"
@@ -19,4 +19,24 @@
         android:layout_marginTop="108dp"
         android:id="@+id/button2"
         android:onClick="BUTTON"/>
+
+    <Button
+        android:text="Emergency Call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button2"
+        android:layout_alignRight="@+id/button2"
+        android:layout_alignEnd="@+id/button2"
+        android:layout_marginTop="44dp"
+        android:id="@+id/EM_CALL" />
+
+    <Button
+        android:text="Emergency Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/EM_CALL"
+        android:layout_alignLeft="@+id/EM_CALL"
+        android:layout_alignStart="@+id/EM_CALL"
+        android:layout_marginTop="41dp"
+        android:id="@+id/EM_TEXT" />
 </RelativeLayout>
