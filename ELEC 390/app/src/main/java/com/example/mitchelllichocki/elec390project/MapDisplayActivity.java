@@ -49,7 +49,7 @@ public class MapDisplayActivity extends AppCompatActivity
         //By default the first child in the ArrayList is displayed
         childSelected = names.get(0);
 
-                //set the back button in the action bar
+        //set the back button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Create a Map Fragment and pass the id of the map via R.id.<id>

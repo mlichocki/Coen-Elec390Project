@@ -11,22 +11,21 @@
     tools:context="com.example.mitchelllichocki.elec390project.ChildActivity">
 
     <Button
-        android:text="Button"
+        android:text="Help!"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="108dp"
-        android:id="@+id/button2"
-        android:onClick="BUTTON"/>
+        android:id="@+id/HelpBtn" />
 
     <Button
         android:text="Emergency Call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button2"
-        android:layout_alignRight="@+id/button2"
-        android:layout_alignEnd="@+id/button2"
+        android:layout_below="@+id/HelpBtn"
+        android:layout_alignRight="@+id/HelpBtn"
+        android:layout_alignEnd="@+id/HelpBtn"
         android:layout_marginTop="44dp"
         android:id="@+id/EM_CALL" />
 
