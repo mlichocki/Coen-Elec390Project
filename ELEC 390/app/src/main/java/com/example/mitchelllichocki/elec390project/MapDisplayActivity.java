@@ -35,6 +35,8 @@ public class MapDisplayActivity extends AppCompatActivity
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>();
     String previous = "", childSelected;
+    LocationService locationService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,11 +185,8 @@ public class MapDisplayActivity extends AppCompatActivity
 
         //code to be removed, used to verify changing coordinates
         previous = name;
-        latitude = latitude + 0.25;
-        longitude = longitude + 0.25;
+        latitude = locationService.getMyLatitude();
+        longitude = locationService.getMyLongitude();
 
-        /*
-
-         */
     }
 }

@@ -9,7 +9,7 @@ import android.widget.Button;
 
 public class ChildActivity extends AppCompatActivity {
 
-    Button emergency_text, emergency_call, help;
+    Button emergency_text, emergency_call, help, coordinates_button;
 
 
 
@@ -54,6 +54,15 @@ public class ChildActivity extends AppCompatActivity {
             }
 
 
+        });
+
+        coordinates_button = (Button) findViewById(R.id.coordinatesButton3);
+        coordinates_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ChildActivity.this, LocationService.class);
+                startActivity(i);
+            }
         });
 
     }
