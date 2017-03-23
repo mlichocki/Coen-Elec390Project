@@ -6,6 +6,7 @@
         android:id="@+id/spinner"
         android:title="Name dropdown menu"
         app:actionViewClass="android.widget.Spinner"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        android:visible="true"/>
 
 </menu>

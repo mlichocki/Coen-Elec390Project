@@ -10,7 +10,7 @@ import android.widget.Button;
 public class ChildActivity extends AppCompatActivity {
 
     Button emergency_text, emergency_call, help, coordinates_button;
-
+    String username, guardian;
 
 
     @Override
@@ -18,6 +18,9 @@ public class ChildActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
+        Intent intent = getIntent();
+        guardian = intent.getStringExtra("guardian");
+        username = intent.getStringExtra("username");
         emergency_text = (Button) findViewById(R.id.EM_TEXT);
         emergency_text.setOnClickListener(new View.OnClickListener(){
             @Override

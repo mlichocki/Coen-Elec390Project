@@ -45,29 +45,31 @@ public class LoginActivity extends AppCompatActivity {
 
             public void onClick(View v){
 
-                if(username.getText().toString().equals(childUsername)){
-                    if(password.getText().toString().equals(childPassword)){
-                        Intent intent = new Intent(LoginActivity.this,ChildActivity.class);
-                        startActivity(intent);
-                    }
-                    else{
-                        Toast toast1 = Toast.makeText(getApplicationContext(),"Invalid Login",Toast.LENGTH_LONG);
+                if(true){
+                    BackgroundWorker backgroundWorker = new BackgroundWorker(LoginActivity.this);
+                    backgroundWorker.login(username.getText().toString(), password.getText().toString());
+                }
+                else {
+                    if (username.getText().toString().equals(childUsername)) {
+                        if (password.getText().toString().equals(childPassword)) {
+                            Intent intent = new Intent(LoginActivity.this, ChildActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast toast1 = Toast.makeText(getApplicationContext(), "Invalid Login", Toast.LENGTH_LONG);
+                            toast1.show();
+                        }
+                    } else if (username.getText().toString().equals(guardianUsername)) {
+                        if (password.getText().toString().equals(guardianPassword)) {
+                            Intent intent = new Intent(LoginActivity.this, GuardianActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast toast1 = Toast.makeText(getApplicationContext(), "Invalid Login", Toast.LENGTH_LONG);
+                            toast1.show();
+                        }
+                    } else {
+                        Toast toast1 = Toast.makeText(getApplicationContext(), "Invalid Login", Toast.LENGTH_LONG);
                         toast1.show();
                     }
-                }
-                else if(username.getText().toString().equals(guardianUsername)){
-                    if(password.getText().toString().equals(guardianPassword)){
-                        Intent intent = new Intent(LoginActivity.this,GuardianActivity.class);
-                        startActivity(intent);
-                    }
-                    else{
-                        Toast toast1 = Toast.makeText(getApplicationContext(),"Invalid Login",Toast.LENGTH_LONG);
-                        toast1.show();
-                    }
-                }
-                else{
-                    Toast toast1 = Toast.makeText(getApplicationContext(),"Invalid Login",Toast.LENGTH_LONG);
-                    toast1.show();
                 }
 
             }

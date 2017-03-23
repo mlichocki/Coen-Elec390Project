@@ -26,19 +26,21 @@ public class RegisterActivity extends AppCompatActivity {
 
             public void onClick(View v){
 
-
-                if(username.getText().toString().equals("") || password.getText().toString().equals("") || email.getText().toString().equals("")){
-                    Toast toast = Toast.makeText(getApplicationContext(),"Incomplete Registration",Toast.LENGTH_LONG);
-                    toast.show();
+                if(true){
+                    BackgroundWorker backgroundWorker = new BackgroundWorker(RegisterActivity.this);
+                    backgroundWorker.register(username.getText().toString(), password.getText().toString(), email.getText().toString(), "guardian", null);
                 }
-
-                else{
-                    Toast toast = Toast.makeText(getApplicationContext(),"Credentials Saved",Toast.LENGTH_LONG);
-                    toast.show();
-                    //sharedPreferenceHelper.saveProfile(aProfile);
-                    Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
-                    intent.putExtra("username",username.getText().toString());
-                    startActivity(intent);
+                else {
+                    if (username.getText().toString().equals("") || password.getText().toString().equals("") || email.getText().toString().equals("")) {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Incomplete Registration", Toast.LENGTH_LONG);
+                        toast.show();
+                    } else {
+                        Toast toast = Toast.makeText(getApplicationContext(), "Credentials Saved", Toast.LENGTH_LONG);
+                        toast.show();
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        intent.putExtra("username", username.getText().toString());
+                        startActivity(intent);
+                    }
                 }
             }
         });

@@ -29,4 +29,7 @@ dependencies {
 
     //Latest version of Google play-services
     compile 'com.google.android.gms:play-services:10.2.0'
+
+    //Volley for server communication
+    compile project(":volley")
 }

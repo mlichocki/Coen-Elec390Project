@@ -10,24 +10,27 @@ import java.util.ArrayList;
 
 public class GuardianActivity extends AppCompatActivity {
 
-    ArrayList<String> names = new ArrayList<>();
+    ArrayList<String> children = new ArrayList<>();
     Button ViewChildrenBtn;
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guardian);
 
+        Intent intent = getIntent();
+        children = intent.getStringArrayListExtra("children");
+        username = intent.getStringExtra("username");
+
         Button ViewChildrenBtn = (Button) findViewById(R.id.ViewChildrenBtn);
 
-        names.add("Mitch");
-        names.add("Felix");
-        names.add("Matt");
 
         ViewChildrenBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(GuardianActivity.this, MapDisplayActivity.class);
-                intent.putExtra("names", names);
+                intent.putExtra("children", children);
+                intent.putExtra("username", username);
                 startActivity(intent);
             }
         });
