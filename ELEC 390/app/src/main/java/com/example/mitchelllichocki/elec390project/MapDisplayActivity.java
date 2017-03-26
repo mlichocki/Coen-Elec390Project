@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -11,10 +12,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
@@ -36,7 +40,9 @@ public class MapDisplayActivity extends AppCompatActivity
     ArrayList<String> names = new ArrayList<>(), children = new ArrayList<>();
     String previous = "", childSelected, username;
     LocationService locationService;
-
+    LatLng savedPosition;
+    double lat, lon;
+    Button setBeacon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +87,32 @@ public class MapDisplayActivity extends AppCompatActivity
                 handler.postDelayed(this, refreshRate);
             }
         }, mapLoadTime); //mapLoadTime is the delay for the map to load
+
+
+        setBeacon = (Button)findViewById(R.id.setBeacon);
+        setBeacon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //savePosition();
+                if((lat != 0.0)&&(lon != 0.0)){
+                    savedPosition = new LatLng(lat, lon);
+                    //save in the database instead
+                    //BackgroundWorker backgroundWorker = new BackgroundWorker();
+                    //backgroundWorker.seBeacon(lat, lon);
+                    map.clear();
+                    map.addMarker(new MarkerOptions().position(savedPosition));
+                    Toast.makeText(getApplicationContext(), "Point Saved!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
 
     //Function is called as soon as the map is ready.
     //Kind of like a "default" setup for the map.
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
         getLatLong(childSelected);
         //set the starting position marker
         marker = map.addMarker(new MarkerOptions()
@@ -102,6 +127,18 @@ public class MapDisplayActivity extends AppCompatActivity
 
         //Assign the Google Map object "map" to this map
         this.map = map;
+
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
+            @Override
+            public void onMapClick(LatLng pointTouch) {
+                map.clear();
+                map.addMarker(new MarkerOptions().position(pointTouch));
+                lat = pointTouch.latitude;
+                lon = pointTouch.longitude;
+            }
+        });
+
+
     }
 
     @Override
@@ -190,4 +227,7 @@ public class MapDisplayActivity extends AppCompatActivity
         longitude = -73.579023;
 
     }
+
+
+
 }
