@@ -55,7 +55,6 @@ public class BackgroundWorker{
                         intent.putExtra("username", username);
                         context.startActivity(intent);
                     }
-
                 }
                 catch(JSONException e){
                     e.printStackTrace();
