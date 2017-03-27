@@ -41,6 +41,9 @@
             android:name=".RegisterActivity"
             android:parentActivityName=".LoginActivity" >
         </activity>
+        
+               <activity android:name=".AddChildActivty" />
+        <activity android:name=".SuccessfulAdd"></activity>
     </application>
 
 </manifest>
