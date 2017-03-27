@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.matthew.myapplication.AddChildActivty">
+    tools:context="com.example.mitchelllichocki.elec390project.AddChildActivity">
 
     <EditText
         android:id="@+id/usr"
@@ -40,7 +40,6 @@
         android:text="Submit"
         android:textSize="20sp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="360dp"
         tools:layout_editor_absoluteX="144dp"
         tools:layout_editor_absoluteY="318dp" />

@@ -14,6 +14,7 @@ public class GuardianActivity extends AppCompatActivity {
     Button ViewChildrenBtn;
     String username;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,15 +26,12 @@ public class GuardianActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AddChildActivty.class));
+                startActivity(new Intent(GuardianActivity.this, com.example.mitchelllichocki.elec390project.AddChildActivity.class));
             }
-      
-        
-        
-        
-      
-        
+        });
+
         Intent intent = getIntent();
+
         children = intent.getStringArrayListExtra("children");
         username = intent.getStringExtra("username");
 
@@ -41,18 +39,14 @@ public class GuardianActivity extends AppCompatActivity {
 
 
         ViewChildrenBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(View v){
                 Intent intent = new Intent(GuardianActivity.this, MapDisplayActivity.class);
                 intent.putExtra("children", children);
                 intent.putExtra("username", username);
                 startActivity(intent);
             }
         });
+
     }
-
-
-
-
-
 
 }

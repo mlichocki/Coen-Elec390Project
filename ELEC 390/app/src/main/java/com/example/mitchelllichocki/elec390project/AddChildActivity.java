@@ -1,4 +1,4 @@
-package com.example.matthew.myapplication;
+package com.example.mitchelllichocki.elec390project;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.widget.Toast;
 import android.widget.Button;
 import android.content.Intent;
 
-public class AddChildActivty extends AppCompatActivity {
+public class AddChildActivity extends AppCompatActivity {
 
     //Creation of edittext and button
 
@@ -18,7 +18,7 @@ public class AddChildActivty extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_child_activty);
+        setContentView(R.layout.activity_add_child_activity);
 
         usr = (EditText) findViewById(R.id.usr);
         psd = (EditText) findViewById(R.id.psd);
@@ -31,7 +31,7 @@ public class AddChildActivty extends AppCompatActivity {
                 //IF STATEMENT FOR PROPER CREDENTIALS
                 if (usr.getText().toString().equals("Child") && psd.getText().toString().equals("Child")){
                 Toast.makeText(getApplicationContext(),"Child Successfully Added", Toast.LENGTH_LONG).show();
-                Intent myintent = new Intent (AddChildActivty.this, SuccessfulAdd.class);
+                Intent myintent = new Intent (AddChildActivity.this, SuccessfulAdd.class);
                 startActivity(myintent);
                 }
 

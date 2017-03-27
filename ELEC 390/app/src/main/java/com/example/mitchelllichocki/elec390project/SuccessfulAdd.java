@@ -1,4 +1,4 @@
-package com.example.matthew.myapplication;
+package com.example.mitchelllichocki.elec390project;
 
         import android.support.v7.app.AppCompatActivity;
         import android.os.Bundle;
