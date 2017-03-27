@@ -26,11 +26,13 @@ import java.util.Map;
 public class BackgroundWorker{
 
     public final static String KEY_IP_ADDRESS = "coenelec390.gear.host";
-    public final static String KEY_LOGIN_URL = "http://" + KEY_IP_ADDRESS + "/login.php";
+    public final static String KEY_LOGIN_URL = "http://" + KEY_IP_ADDRESS + "/login2.php";
     public final static String KEY_GETCHILDREN_URL = "http://" + KEY_IP_ADDRESS + "/getchildren.php";
-    public final static String KEY_REGISTER_URL = "http://" + KEY_IP_ADDRESS + "/register.php";
-    public final static String KEY_ADDCHILD_URL = "http://" + KEY_IP_ADDRESS + "/addchild.php";
+    public final static String KEY_REGISTER_URL = "http://" + KEY_IP_ADDRESS + "/register2.php";
+    public final static String KEY_ADDCHILD_URL = "http://" + KEY_IP_ADDRESS + "/addchild2.php";
+    public final static String KEY_POSTCOORD_URL = "http://" + KEY_IP_ADDRESS + "/postcoord2.php";
     public Context context;
+    public double[] beacon;
 
     public BackgroundWorker(Context context){
         this.context = context;
@@ -105,6 +107,7 @@ public class BackgroundWorker{
                     else{
 
                     }
+                    addChild("mitch", "Felix", "Felix", "Felix", null);
                     context.startActivity(intent);
                 }
                 catch(JSONException e){
@@ -174,7 +177,7 @@ public class BackgroundWorker{
         requestQueue.add(stringRequest);
     }
 
-    public void register(final String username, final String password, final String email, final String role, final String guardian){
+    public void register(final String username, final String password, final String email, final String role){
         StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_REGISTER_URL,new Response.Listener<String>(){
             @Override
             public void onResponse(String response){
@@ -224,14 +227,52 @@ public class BackgroundWorker{
                 params.put("password", password);
                 params.put("email", email);
                 params.put("role", role);
-                if(role.toUpperCase().equals("CHILD")){
-                    params.put("guardian", guardian);
-                }
                 return params;
             }
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
+    }
+
+    public double [] postCoordinates(final String username, final double latitude, final double longitude){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_POSTCOORD_URL,new Response.Listener<String>(){
+            @Override
+            public void onResponse(String response){
+
+                try{
+                    JSONObject jsonObject = new JSONObject(response);
+                    double Blat = jsonObject.getDouble("Blatitude");
+                    double Blong = jsonObject.getDouble("Blongitude");
+                    double notification = (double) jsonObject.getInt("notification");
+                    beacon = new double[]{Blat, Blong, notification};
+                }
+                catch(JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                    }
+
+                }) {
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("username", username);
+                params.put("latitude", String.valueOf(latitude));
+                params.put("longitude", String.valueOf(longitude));
+                params.put("notification", "");
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+
+        return beacon;
     }
 }
