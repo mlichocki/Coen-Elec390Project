@@ -11,7 +11,7 @@ import android.widget.Button;
 public class ChildActivity extends AppCompatActivity {
 
     Button emergency_text, emergency_call, help, coordinates_button;
-    String username, guardian;
+    String username;
     final int refreshRate = 1000*5, mapLoadTime = 1000*5;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
     double test = 100;
@@ -23,7 +23,6 @@ public class ChildActivity extends AppCompatActivity {
         setContentView(R.layout.activity_child);
 
         Intent intent = getIntent();
-        guardian = intent.getStringExtra("guardian");
         username = intent.getStringExtra("username");
         emergency_text = (Button) findViewById(R.id.EM_TEXT);
         emergency_text.setOnClickListener(new View.OnClickListener(){
@@ -76,8 +75,8 @@ public class ChildActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run(){
-                backgroundWorker.postCoordinates(username, test, test);
-                test = test - 1;
+                //backgroundWorker.postCoordinates(username, test, test);
+                //test = test - 1;
             }
         }, mapLoadTime); //mapLoadTime is the delay for the map to load
     }

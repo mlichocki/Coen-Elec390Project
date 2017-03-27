@@ -52,8 +52,6 @@ public class BackgroundWorker{
                     }
                     else if(role.equals("CHILD")){
                         Intent intent = new Intent(context, ChildActivity.class);
-                        String guardian = jsonObject.getString("guardian");
-                        intent.putExtra("guardian", guardian);
                         intent.putExtra("username", username);
                         context.startActivity(intent);
                     }
@@ -107,7 +105,6 @@ public class BackgroundWorker{
                     else{
 
                     }
-                    addChild("mitch", "Felix", "Felix", "Felix", null);
                     context.startActivity(intent);
                 }
                 catch(JSONException e){
@@ -242,10 +239,10 @@ public class BackgroundWorker{
 
                 try{
                     JSONObject jsonObject = new JSONObject(response);
-                    double Blat = jsonObject.getDouble("Blatitude");
-                    double Blong = jsonObject.getDouble("Blongitude");
-                    double notification = (double) jsonObject.getInt("notification");
-                    beacon = new double[]{Blat, Blong, notification};
+                    //double Blat = jsonObject.getDouble("Blatitude");
+                    //double Blong = jsonObject.getDouble("Blongitude");
+                    //double notification = (double) jsonObject.getInt("notification");
+                    //beacon = new double[]{Blat, Blong, notification};
                 }
                 catch(JSONException e){
                     e.printStackTrace();
@@ -265,7 +262,6 @@ public class BackgroundWorker{
                 params.put("username", username);
                 params.put("latitude", String.valueOf(latitude));
                 params.put("longitude", String.valueOf(longitude));
-                params.put("notification", "");
                 return params;
             }
         };
