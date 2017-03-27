@@ -19,6 +19,20 @@ public class GuardianActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guardian);
 
+        
+         Button btn = (Button)findViewById(R.id.Add_Child);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AddChildActivty.class));
+            }
+      
+        
+        
+        
+      
+        
         Intent intent = getIntent();
         children = intent.getStringArrayListExtra("children");
         username = intent.getStringExtra("username");
