@@ -200,7 +200,6 @@ public class BackgroundWorker{
                     else{
 
                     }
-                    context.startActivity(intent);
 
                 }
                 catch(JSONException e){
@@ -231,7 +230,7 @@ public class BackgroundWorker{
         requestQueue.add(stringRequest);
     }
 
-    public double [] postCoordinates(final String username, final double latitude, final double longitude){
+    public void postCoordinates(final String username, final double latitude, final double longitude){
         StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_POSTCOORD_URL,new Response.Listener<String>(){
             @Override
             public void onResponse(String response){
@@ -267,7 +266,5 @@ public class BackgroundWorker{
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
-
-        return beacon;
     }
 }
