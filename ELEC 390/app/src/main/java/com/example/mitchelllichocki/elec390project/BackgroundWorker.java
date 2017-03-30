@@ -26,13 +26,13 @@ import java.util.Map;
 public class BackgroundWorker{
 
     public final static String KEY_IP_ADDRESS = "coenelec390.gear.host";
-    public final static String KEY_LOGIN_URL = "http://" + KEY_IP_ADDRESS + "/login2.php";
+    public final static String KEY_LOGIN_URL = "http://" + KEY_IP_ADDRESS + "/login.php";
     public final static String KEY_GETCHILDREN_URL = "http://" + KEY_IP_ADDRESS + "/getchildren.php";
-    public final static String KEY_REGISTER_URL = "http://" + KEY_IP_ADDRESS + "/register2.php";
-    public final static String KEY_ADDCHILD_URL = "http://" + KEY_IP_ADDRESS + "/addchild2.php";
-    public final static String KEY_POSTCOORD_URL = "http://" + KEY_IP_ADDRESS + "/postcoord2.php";
+    public final static String KEY_REGISTER_URL = "http://" + KEY_IP_ADDRESS + "/register.php";
+    public final static String KEY_ADDCHILD_URL = "http://" + KEY_IP_ADDRESS + "/addchild.php";
+    public final static String KEY_POSTCOORD_URL = "http://" + KEY_IP_ADDRESS + "/postcoord.php";
+    public final static String KEY_FETCHCOORD_URL = "http://" + KEY_IP_ADDRESS + "/fetchcoord.php";
     public Context context;
-    public double[] beacon;
 
     public BackgroundWorker(Context context){
         this.context = context;
@@ -200,7 +200,6 @@ public class BackgroundWorker{
                     else{
 
                     }
-                    context.startActivity(intent);
 
                 }
                 catch(JSONException e){
@@ -231,21 +230,16 @@ public class BackgroundWorker{
         requestQueue.add(stringRequest);
     }
 
-    public double [] postCoordinates(final String username, final double latitude, final double longitude){
+    /*
+    The postCoordinates function checks the beacon status from each parent in the <child's name> table
+    and compares them with the child's current location. If the child is within this beacon a value of 2 is assigned,
+    if they are outside of this beacon a value of 1 is assigned. If the beacon's parameters are null then a value of 0 is set.
+    Once the beacon check is complete, each associated <guardian name> table is then updated with the child's current location.
+     */
+    public void postCoordinates(final String username, final double latitude, final double longitude){
         StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_POSTCOORD_URL,new Response.Listener<String>(){
             @Override
             public void onResponse(String response){
-
-                try{
-                    JSONObject jsonObject = new JSONObject(response);
-                    //double Blat = jsonObject.getDouble("Blatitude");
-                    //double Blong = jsonObject.getDouble("Blongitude");
-                    //double notification = (double) jsonObject.getInt("notification");
-                    //beacon = new double[]{Blat, Blong, notification};
-                }
-                catch(JSONException e){
-                    e.printStackTrace();
-                }
             }
         },
                 new Response.ErrorListener(){
@@ -253,7 +247,6 @@ public class BackgroundWorker{
                     public void onErrorResponse(VolleyError error){
                         Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
                     }
-
                 }) {
             @Override
             public Map<String, String> getParams() {
@@ -267,7 +260,46 @@ public class BackgroundWorker{
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
-
-        return beacon;
     }
+
+    public void fetchCoordinates(final String guardianUsername, final String childUsername, final VolleyCallback callback){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_FETCHCOORD_URL,new Response.Listener<String>(){
+            @Override
+            public void onResponse(String response){
+
+                callback.onSuccess(response);
+                /*try{
+
+
+                }
+                catch(JSONException e){
+                    e.printStackTrace();
+                }*/
+
+            }
+        },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                    }
+
+                }) {
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("guardianUsername", guardianUsername);
+                params.put("childUsername", childUsername);
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    public interface VolleyCallback{
+        void onSuccess(String response);
+    }
+
 }

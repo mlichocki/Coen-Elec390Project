@@ -152,8 +152,22 @@ public class LocationService extends AppCompatActivity implements GoogleApiClien
     }
 
 
-    public static Double getMyLatitude() {return myLatitude;}
-    public static Double getMyLongitude() {return myLongitude;}
+    public static Double getMyLatitude() {
+        if(myLatitude == null){
+            return (double) 1000;
+        }
+        else {
+            return myLatitude;
+        }
+    }
+    public static Double getMyLongitude() {
+        if(myLongitude == null){
+            return (double) 1000;
+        }
+        else {
+            return myLongitude;
+        }
+    }
 
 
 }
