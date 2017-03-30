@@ -12,9 +12,10 @@ public class ChildActivity extends AppCompatActivity {
 
     Button emergency_text, emergency_call, help, coordinates_button;
     String username;
-    final int refreshRate = 1000*5, mapLoadTime = 1000*5;
+    final int refreshRate = 1000*30, mapLoadTime = 1000*5;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
-    double test = 100;
+    LocationService locationService = new LocationService();
+    double lastTransLat = 0, lastTransLong = 0;
 
 
     @Override
@@ -75,9 +76,20 @@ public class ChildActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run(){
-                //backgroundWorker.postCoordinates(username, test, test);
-                //test = test - 1;
+                double latitude = locationService.getMyLatitude();
+                double longitude = locationService.getMyLongitude();
+                //Only update the server when there is a change in positioning of 10 meters or more
+                double distanceTraveledLat = Math.abs(latitude - lastTransLat)*1000*1000/9;
+                double distanceTraveledLong = Math.abs(longitude - lastTransLong)*Math.cos(2*Math.PI*latitude/360)*1000*1000/9;
+                double distanceTraveled = Math.sqrt(Math.pow(distanceTraveledLat, 2) + Math.pow(distanceTraveledLong, 2));
+                if(distanceTraveled >= 10) {
+                    backgroundWorker.postCoordinates(username, latitude, longitude);
+                    lastTransLat = latitude;
+                    lastTransLong = longitude;
+                }
+                handler.postDelayed(this, refreshRate);
             }
-        }, mapLoadTime); //mapLoadTime is the delay for the map to load
+        }, 0); //mapLoadTime is the delay for the map to load
+
     }
 }
