@@ -223,8 +223,8 @@ public class MapDisplayActivity extends AppCompatActivity
 
         }
 
-        latitude = 45.497236;
-        longitude = -73.579023;
+        latitude = 45.597236;
+        longitude = -73.679023;
 
     }
 
