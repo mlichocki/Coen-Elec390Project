@@ -253,6 +253,7 @@ public class MapDisplayActivity extends AppCompatActivity
         savedInstanceState.putString("username", username);
     }
 
+
     //Restore the saved data when the activity resumes
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
