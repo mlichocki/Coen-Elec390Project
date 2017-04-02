@@ -121,8 +121,6 @@ public class MapDisplayActivity extends AppCompatActivity
         //Set the map to a basic grid style
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        //update the map
-        //updateMapDisplay(childSelected);
         getLatLong(childSelected);
         //set the starting position marker
         marker = map.addMarker(new MarkerOptions()
@@ -180,16 +178,6 @@ public class MapDisplayActivity extends AppCompatActivity
 
                     childSelected = spinner.getSelectedItem().toString().trim();
                     updateMapDisplay(childSelected);
-                    //Retrieve the coordinates
-                    //getLatLong(childSelected);
-                    //Remove the marker of the "old" position
-                    //marker.remove();
-                    //Add a new marker at for the newest positions
-                    /*marker = map.addMarker(new MarkerOptions()
-                            .position(new LatLng(latitude, longitude))
-                            .title("Lat: " + latitude + " | " + "Long: " + longitude));*/
-                    //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
-                    //map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
 
                 }
 
@@ -261,7 +249,5 @@ public class MapDisplayActivity extends AppCompatActivity
         childrenUsername = savedInstanceState.getStringArrayList("childrenUsername");
         username = savedInstanceState.getString("username");
     }
-
-
 
 }

@@ -33,6 +33,7 @@ public class BackgroundWorker{
     public final static String KEY_POSTCOORD_URL = "http://" + KEY_IP_ADDRESS + "/postcoord.php";
     public final static String KEY_FETCHCOORD_URL = "http://" + KEY_IP_ADDRESS + "/fetchcoord.php";
     public Context context;
+    private static BackgroundWorker instance = null;
 
     public BackgroundWorker(Context context){
         this.context = context;
@@ -263,34 +264,34 @@ public class BackgroundWorker{
     }
 
     public void fetchCoordinates(final String guardianUsername, final String childUsername, final VolleyCallback callback){
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_FETCHCOORD_URL,new Response.Listener<String>(){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_FETCHCOORD_URL,
+
+                new Response.Listener<String>(){
+
             @Override
             public void onResponse(String response){
-
                 callback.onSuccess(response);
-                /*try{
-
-
-                }
-                catch(JSONException e){
-                    e.printStackTrace();
-                }*/
-
             }
+
         },
+
                 new Response.ErrorListener(){
+
                     @Override
                     public void onErrorResponse(VolleyError error){
                         Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+
                     }
 
-                }) {
+                }){
+
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("guardianUsername", guardianUsername);
                 params.put("childUsername", childUsername);
                 return params;
+
             }
         };
 
@@ -299,7 +300,15 @@ public class BackgroundWorker{
     }
 
     public interface VolleyCallback{
-        void onSuccess(String response);
+        void onSuccess(String result);
+    }
+
+    public static synchronized BackgroundWorker getInstance(Context context){
+        if (instance == null){
+            instance = new BackgroundWorker(context);
+        }
+
+        return instance;
     }
 
 }
