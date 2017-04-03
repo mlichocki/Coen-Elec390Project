@@ -20,7 +20,7 @@
         <activity
             android:name=".MapDisplayActivity"
             android:parentActivityName=".GuardianActivity" />
-        //Add the API key, which is registered with Google Play Services under the name ELEC390
+        <!-- Add the API key, which is registered with Google Play Services under the name ELEC390 -->
         Project
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -28,7 +28,7 @@
         <activity android:name=".ChildActivity">
         </activity>
         <activity android:name=".LoginActivity">
-        //Set MainActivity as the opening activity
+        <!--Set MainActivity as the opening activity-->
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
 
@@ -41,6 +41,10 @@
             android:name=".RegisterActivity"
             android:parentActivityName=".LoginActivity" >
         </activity>
+        
+        <activity android:name=".AddChildActivity" />
+        <activity android:name=".SuccessfulAdd" />
+
     </application>
 
 </manifest>
