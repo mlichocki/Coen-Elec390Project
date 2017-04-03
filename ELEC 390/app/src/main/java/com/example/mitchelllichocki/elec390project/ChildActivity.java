@@ -12,9 +12,9 @@ public class ChildActivity extends AppCompatActivity {
 
     Button emergency_text, emergency_call, help, coordinates_button;
     String username;
-    final int refreshRate = 1000*30, mapLoadTime = 1000*5;
+    final int refreshRate = 1000*5;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
-    LocationService locationService = new LocationService();
+    LocationService locationService;
     double lastTransLat = 0, lastTransLong = 0;
 
 
@@ -25,6 +25,7 @@ public class ChildActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
+        locationService = new LocationService(username);
         emergency_text = (Button) findViewById(R.id.EM_TEXT);
         emergency_text.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -72,6 +73,7 @@ public class ChildActivity extends AppCompatActivity {
             }
         });
 
+
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -83,10 +85,11 @@ public class ChildActivity extends AppCompatActivity {
                 double distanceTraveledLong = Math.abs(longitude - lastTransLong)*Math.cos(2*Math.PI*latitude/360)*1000*1000/9;
                 double distanceTraveled = Math.sqrt(Math.pow(distanceTraveledLat, 2) + Math.pow(distanceTraveledLong, 2));
                 if(distanceTraveled >= 10) {
-                    backgroundWorker.postCoordinates(username, latitude, longitude);
+                    backgroundWorker.postCoordinates(username, latitude, longitude, "update");
                     lastTransLat = latitude;
                     lastTransLong = longitude;
                 }
+
                 handler.postDelayed(this, refreshRate);
             }
         }, 0); //mapLoadTime is the delay for the map to load
