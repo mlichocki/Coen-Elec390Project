@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -15,8 +15,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LocationService"
-            android:parentActivityName="com.example.mitchelllichocki.elec390project.ChildActivity">
-        </activity>
+            android:parentActivityName=".ChildActivity"></activity>
         <activity
             android:name=".MapDisplayActivity"
             android:parentActivityName=".GuardianActivity" />
@@ -25,26 +24,28 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBZGSYfTEIHq8pKW4fZex-osUw_PE_VUbM" />
-        <activity android:name=".ChildActivity">
-        </activity>
-        <activity android:name=".LoginActivity">
-        <!--Set MainActivity as the opening activity-->
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+        <activity android:name=".ChildActivity"></activity>
+        <activity android:name=".LoginActivity">
+
+            <!-- Set MainActivity as the opening activity -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-        <activity android:name=".GuardianActivity">
-            </activity>
+        <activity android:name=".GuardianActivity"></activity>
         <activity
             android:name=".RegisterActivity"
-            android:parentActivityName=".LoginActivity" >
-        </activity>
-        
+            android:parentActivityName=".LoginActivity"></activity>
         <activity android:name=".AddChildActivity" />
-        <activity android:name=".SuccessfulAdd" />
 
+        <service
+            android:name=".ChildService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":ServiceProcess"></service>
     </application>
 
 </manifest>
