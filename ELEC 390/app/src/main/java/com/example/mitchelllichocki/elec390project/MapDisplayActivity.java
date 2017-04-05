@@ -1,6 +1,8 @@
 package com.example.mitchelllichocki.elec390project;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
@@ -19,6 +21,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -27,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.mitchelllichocki.elec390project.R.id.spinner;
 import static com.example.mitchelllichocki.elec390project.R.menu.menu_actionbar;
@@ -36,21 +42,24 @@ public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
     double latitude, longitude;
-    Marker marker = null;
+    Marker marker, beaconMarker = null;
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
     String childSelected, username;
-    LatLng savedPosition;
+    DraggableCircle savedRegion;
+    LatLng savedPosition = null; //default
+    double savedRadius = 50.0; //default
     double lat, lon;
     Button setBeacon;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+    private List<DraggableCircle> mCircles = new ArrayList<>(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_display);
 
-        final int refreshRate = 1000 * 30; //Time rates are in milliseconds
+        final int refreshRate = 1000 * 10; //Time rates are in milliseconds
 
         //If this is the first instance of the activity starting
         if (savedInstanceState == null) {
@@ -99,14 +108,29 @@ public class MapDisplayActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 //savePosition();
-                if((lat != 0.0)&&(lon != 0.0)){
-                    savedPosition = new LatLng(lat, lon);
+                if(savedPosition != null){
                     //save in the database instead
                     //BackgroundWorker backgroundWorker = new BackgroundWorker();
                     //backgroundWorker.seBeacon(lat, lon);
+
+                    // this code only allows one saved region at a time
+                    if (mCircles != null){mCircles.clear();}
                     map.clear();
-                    map.addMarker(new MarkerOptions().position(savedPosition));
-                    Toast.makeText(getApplicationContext(), "Point Saved!", Toast.LENGTH_SHORT).show();
+                    savedRegion = new DraggableCircle(savedPosition, savedRadius); // default radius is 50 meters
+                    savedRegion.hideMarkers();
+                    mCircles.add(savedRegion);
+                    //making sure we only save the same reagion once
+                    savedPosition = null;
+                    savedRadius = 50.0;
+
+                    //if (beaconMarker != null){beaconMarker.remove(); } // this makes sure there is only one beacon
+                    // to remove this line --> one must implement a function that manually removes beacons
+                    //beaconMarker = map.addMarker(new MarkerOptions().position(savedPosition).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                    Toast.makeText(getApplicationContext(), "Beacon Set!", Toast.LENGTH_SHORT).show();
+                    // make sure to save this beacon's coordinates
+                } else {
+                    Toast.makeText(getApplicationContext(), "Click on the map to add a beacon", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -135,14 +159,51 @@ public class MapDisplayActivity extends AppCompatActivity
 
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
             @Override
-            public void onMapClick(LatLng pointTouch) {
-                map.clear();
-                map.addMarker(new MarkerOptions().position(pointTouch));
-                lat = pointTouch.latitude;
-                lon = pointTouch.longitude;
+            public void onMapClick(LatLng centerOfRegion) {
+                //map.clear();
+                //if (beaconMarker != null){beaconMarker.remove(); }
+                //beaconMarker = map.addMarker(new MarkerOptions().position(pointTouch).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                lat = centerOfRegion.latitude;
+                lon = centerOfRegion.longitude;
+                savedPosition = centerOfRegion;
+                if (mCircles != null){
+                    mCircles.clear();
+                    map.clear();
+                    if (savedRegion != null){
+                        DraggableCircle savedCircle = new DraggableCircle(savedRegion.getCenter(), savedRegion.getRadius());
+                        savedCircle.hideMarkers();
+                        mCircles.add(savedCircle);
+                    }
+                }
+                DraggableCircle circle = new DraggableCircle(centerOfRegion, 50); // default radius is 50 meters
+                mCircles.add(circle);
             }
         });
 
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
+            }
+        });
+
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener(){
+            @Override
+            public void onMarkerDragStart(Marker marker) {onMarkerMoved(marker);}
+
+            @Override
+            public void onMarkerDrag(Marker marker) {onMarkerMoved(marker);}
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {onMarkerMoved(marker);}
+
+            private void onMarkerMoved(Marker marker){
+                for (DraggableCircle draggableCircle : mCircles){
+                    if (draggableCircle.onMarkerMoved(marker))
+                        break;
+                }
+            }
+        });
 
     }
 
@@ -249,6 +310,64 @@ public class MapDisplayActivity extends AppCompatActivity
         names = savedInstanceState.getStringArrayList("names");
         childrenUsername = savedInstanceState.getStringArrayList("childrenUsername");
         username = savedInstanceState.getString("username");
+    }
+
+    // beacon region
+    private class DraggableCircle{
+        private final Marker mCenter;
+        private final Marker mRadius;
+        private final Circle mCircle;
+        private double mRadiusMeters;
+
+        public DraggableCircle(LatLng center, double radiusMeters){
+            mRadiusMeters = radiusMeters;
+            mCenter = map.addMarker(new MarkerOptions().position(center).draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mRadius = map.addMarker(new MarkerOptions().position(toRadiusLatLng(center, radiusMeters)).draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mCircle = map.addCircle(new CircleOptions().center(center).radius(radiusMeters).strokeColor(Color.argb(200, 50, 150, 250)).fillColor(Color.argb(100, 50, 150, 250)));
+        }
+
+        public boolean onMarkerMoved(Marker marker){
+            if (marker.equals(mCenter)){
+                savedPosition = marker.getPosition();
+                mCircle.setCenter(savedPosition);
+                mRadius.setPosition(toRadiusLatLng(marker.getPosition(), mRadiusMeters));
+                return true;
+            }
+            if (marker.equals(mRadius)){
+                mRadiusMeters = toRadiusMeters(mCenter.getPosition(), mRadius.getPosition());
+                mCircle.setRadius(mRadiusMeters);
+                savedRadius = mRadiusMeters;
+                return true;
+            }
+            return false;
+        }
+
+        public void hideMarkers(){
+            mRadius.setVisible(false);
+            mCenter.setVisible(false);
+        }
+
+        public LatLng getCenter() {
+            return mCenter.getPosition();
+        }
+
+        public double getRadius() {
+            return mRadiusMeters;
+        }
+
+    }
+
+    private static LatLng toRadiusLatLng(LatLng center, double radiusMeters){
+        double radiusAngle = Math.toDegrees(radiusMeters / 6371009)/Math.cos(Math.toRadians(center.latitude));
+        return new LatLng(center.latitude, center.longitude + radiusAngle);
+    }
+
+    private static double toRadiusMeters(LatLng center, LatLng radius){
+        float[] result = new float[1];
+        Location.distanceBetween(center.latitude, center.longitude, radius.latitude, radius.longitude, result);
+        return result[0];
     }
 
 }
