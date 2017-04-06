@@ -42,7 +42,7 @@ public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
     double latitude, longitude;
-    Marker marker, beaconMarker = null;
+    Marker marker = null, beaconMarker = null;
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
     String childSelected, username;
@@ -50,6 +50,7 @@ public class MapDisplayActivity extends AppCompatActivity
     LatLng savedPosition = null; //default
     double savedRadius = 50.0; //default
     double lat, lon;
+    //double lat = 1000, lon = 1000, radius = 20;
     Button setBeacon;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
     private List<DraggableCircle> mCircles = new ArrayList<>(1);

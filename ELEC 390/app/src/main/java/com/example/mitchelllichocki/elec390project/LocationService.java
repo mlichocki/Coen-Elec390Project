@@ -28,6 +28,7 @@ public class LocationService extends AppCompatActivity implements GoogleApiClien
     private LocationRequest locationRequest;
     static Double myLatitude;
     static Double myLongitude;
+    String username = null;
 
 
     // *****   ON CREATE   ***** //
@@ -50,7 +51,9 @@ public class LocationService extends AppCompatActivity implements GoogleApiClien
 
     }
 
-
+    LocationService(String username){
+        this.username = username;
+    }
     // *****   GPS LOCATION APPLICATION TYPICAL FUNCTIONS   ***** //
 
     @Override
