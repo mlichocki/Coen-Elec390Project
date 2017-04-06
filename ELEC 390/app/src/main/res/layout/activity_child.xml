@@ -20,6 +20,15 @@
         android:id="@+id/coordinatesButton3" />
 
     <Button
+        android:text="Add Emergency Contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:id="@+id/AddContact" />
+
+    <Button
         android:text="Help!"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

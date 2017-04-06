@@ -10,7 +10,7 @@ import android.widget.Button;
 
 public class ChildActivity extends AppCompatActivity {
 
-    Button emergency_text, emergency_call, help, coordinates_button;
+    Button emergency_text, emergency_call, help, coordinates_button, add_contact;
     String username;
     final int refreshRate = 1000*5;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
@@ -30,6 +30,12 @@ public class ChildActivity extends AppCompatActivity {
         emergency_text.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v) {
+
+
+              //  String no = "Contact";
+               // sharedPref
+
+
 
                 Intent textIntent= new Intent (Intent.ACTION_VIEW, Uri.parse ("sms:15149495656"));
                 textIntent.putExtra("sms_body","URGENT: NEED HELP! - Secure Track");
@@ -51,6 +57,18 @@ public class ChildActivity extends AppCompatActivity {
             }
         });
 
+        add_contact = (Button) findViewById(R.id.AddContact);
+        add_contact.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v) {
+
+                Intent a = new Intent(ChildActivity.this, AddingContact.class);
+                startActivity(a);
+            }
+
+
+        });
+
         help = (Button) findViewById(R.id.HelpBtn);
         help.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -63,6 +81,8 @@ public class ChildActivity extends AppCompatActivity {
 
 
         });
+
+
 
         coordinates_button = (Button) findViewById(R.id.coordinatesButton3);
         coordinates_button.setOnClickListener(new View.OnClickListener(){
