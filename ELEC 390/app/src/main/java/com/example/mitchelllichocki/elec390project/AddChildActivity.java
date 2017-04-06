@@ -1,6 +1,8 @@
 package com.example.mitchelllichocki.elec390project;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,7 +17,7 @@ public class AddChildActivity extends AppCompatActivity {
     //Creation of edittext and button
 
     Button usrbtn;
-    EditText usr,psd, name;
+    EditText usr,psd,name,phone;
     String guardianUsername;
     ArrayList<String> children;
 
@@ -31,6 +33,7 @@ public class AddChildActivity extends AppCompatActivity {
         usr = (EditText) findViewById(R.id.usr);
         psd = (EditText) findViewById(R.id.psd);
         name = (EditText) findViewById(R.id.name);
+        phone = (EditText) findViewById(R.id.phone);
         usrbtn = (Button) findViewById(R.id.usrbtn);
         final BackgroundWorker backgroundWorker = new BackgroundWorker(this);
         usrbtn.setOnClickListener(new View.OnClickListener(){
@@ -41,7 +44,23 @@ public class AddChildActivity extends AppCompatActivity {
                 if ( !((usr.getText().toString().equals("") || psd.getText().toString().equals("")) || name.getText().toString().equals("")) ){
                     Toast.makeText(getApplicationContext(),"Child Successfully Added", Toast.LENGTH_LONG).show();
                     backgroundWorker.addChild(guardianUsername, usr.getText().toString(), name.getText().toString(), psd.getText().toString(), children);
+
+
+
+                    // SHARED PREFERENCE STUFF - MATT - APRIL5TH
+
+                    SharedPreferences sharedPref = getSharedPreferences("Contact_C", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("Name", name.getText().toString());
+                    editor.putString("Number", phone.getText().toString());
+                    editor.apply();
+
+
+
+
+
                 }
+
             }
         });
     }
