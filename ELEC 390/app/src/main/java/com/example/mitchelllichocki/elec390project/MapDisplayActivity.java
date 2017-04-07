@@ -11,7 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,6 +22,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -31,11 +36,14 @@ public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
     double latitude, longitude;
-    Marker marker = null;
+    Marker marker = null, beaconMarker = null;
     GoogleMap map;
-    ArrayList<String> names = new ArrayList<>(), children = new ArrayList<>();
-    String previous = "", childSelected, username;
-    LocationService locationService;
+    ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
+    String childSelected, username;
+    double lat = 1000, lon = 1000, radius = 20;
+    Button setBeacon;
+    BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+    int refreshRate = 1000 * 10; //Time rates are in milliseconds
 
 
     @Override
@@ -43,23 +51,25 @@ public class MapDisplayActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_display);
 
-        final int refreshRate = 1000*5, mapLoadTime = 1000*5; //Time rates are in milliseconds
-        ArrayList<String> tempChildren = new ArrayList<>();
-        Intent intent = getIntent();
-        tempChildren = intent.getStringArrayListExtra("children");
-        username = intent.getStringExtra("username");
+        //If this is the first instance of the activity starting
+        if (savedInstanceState == null) {
+            ArrayList<String> tempChildren;
+            Intent intent = getIntent();
+            tempChildren = intent.getStringArrayListExtra("children");
+            username = intent.getStringExtra("username");
 
-        if(tempChildren != null) {
-            for (int i = 0; i < tempChildren.size(); i++) {
-                names.add(tempChildren.get(i));
-                children.add(tempChildren.get(++i));
+            if (tempChildren != null) {
+                for (int i = 0; i < tempChildren.size(); i++) {
+                    names.add(tempChildren.get(i));
+                    childrenUsername.add(tempChildren.get(++i));
+                }
             }
-            //By default the first child in the ArrayList is displayed
-            childSelected = names.get(0);
+            //If not the first instance then restore from previous instance
+        } else {
+            onRestoreInstanceState(savedInstanceState);
         }
-        else{
-
-        }
+        //By default the first child in the ArrayList is displayed
+        childSelected = names.get(0);
 
         //set the back button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -80,28 +90,58 @@ public class MapDisplayActivity extends AppCompatActivity
                 //Run this script every 10 seconds
                 handler.postDelayed(this, refreshRate);
             }
-        }, mapLoadTime); //mapLoadTime is the delay for the map to load
+        }, 0); //mapLoadTime is the delay for the map to load
+
+
+        setBeacon = (Button)findViewById(R.id.setBeacon);
+        setBeacon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(beaconMarker != null){
+                    beaconMarker.remove();
+                }
+                if(!((lat > 90) || (lat < 0) || (Math.abs(lon) > 180))){
+                    beaconMarker = map.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("Beacon").snippet("Lat: " + lat + "\n" + "Long: " + lon));
+                    backgroundWorker.setBeacon(map, username, childSelected, lat, lon, radius);
+                    lat = 1000;
+                    lon = 1000;
+                }
+            }
+        });
+
     }
 
 
     //Function is called as soon as the map is ready.
     //Kind of like a "default" setup for the map.
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
+        //Set the map to a basic grid style
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
         getLatLong(childSelected);
         //set the starting position marker
         marker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .title("Lat: " + latitude + " | " + "Long: " + longitude));
 
-        //Set the map to a basic grid style
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
         //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
 
         //Assign the Google Map object "map" to this map
         this.map = map;
+
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
+            @Override
+            public void onMapClick(LatLng pointTouch) {
+                map.clear();
+                lat = pointTouch.latitude;
+                lon = pointTouch.longitude;
+                map.addMarker(new MarkerOptions().position(pointTouch).title("Beacon").snippet("Lat: " + lat + "\n" + "Long: " + lon));
+            }
+        });
+
+
     }
 
     @Override
@@ -135,16 +175,7 @@ public class MapDisplayActivity extends AppCompatActivity
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                     childSelected = spinner.getSelectedItem().toString().trim();
-                    //Retrieve the coordinates
-                    getLatLong(childSelected);
-                    //Remove the marker of the "old" position
-                    marker.remove();
-                    //Add a new marker at for the newest positions
-                    marker = map.addMarker(new MarkerOptions()
-                            .position(new LatLng(latitude, longitude))
-                            .title("Lat: " + latitude + " | " + "Long: " + longitude));
-                    //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+                    updateMapDisplay(childSelected);
 
                 }
 
@@ -164,30 +195,61 @@ public class MapDisplayActivity extends AppCompatActivity
 
     private void updateMapDisplay(String name){
         //Retrieve the coordinates
+        //child's username: childrenUsername.get(names.indexOf(name));
         getLatLong(name);
         //Remove the marker of the "old" position
         marker.remove();
-        //Add a new marker at for the newest positions
-        marker = map.addMarker(new MarkerOptions()
-                .position(new LatLng(latitude, longitude))
-                .title(name).snippet("Lat: " + latitude + "\n" + "Long: " + longitude));
-        //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+        if((latitude > 90) || (latitude < 0) || (Math.abs(longitude) > 180)){
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(45.5, -73.566667), 1));
+            Toast.makeText(this,"Unable to locate child!",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            //Add a new marker at for the newest positions
+            marker = map.addMarker(new MarkerOptions()
+                    .position(new LatLng(latitude, longitude))
+                    .title(name).snippet("Lat: " + latitude + "\n" + "Long: " + longitude));
+            //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+        }
+
+        if(beaconMarker != null){
+            beaconMarker = map.addMarker(new MarkerOptions().position(beaconMarker.getPosition()).title("Beacon").snippet("Lat: " + latitude + "\n" + "Long: " + longitude));
+        }
     }
 
     //Retrieve the latitude and longitude of the most recent position
     public void getLatLong(String name){
+        backgroundWorker.fetchCoordinates(username, childrenUsername.get(names.indexOf(name)), new BackgroundWorker.VolleyCallback() {
+            @Override
+            public void onSuccess(String response) {
+                try{
+                    JSONObject jsonObject = new JSONObject(response);
+                    latitude = Double.parseDouble(jsonObject.getString("latitude"));
+                    longitude = Double.parseDouble(jsonObject.getString("longitude"));
+                }
+                catch(JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-        if(name != null) {
-            //latitude = locationService.getMyLatitude();
-            //longitude = locationService.getMyLongitude();
-        }
-        else{
+    //Save the following data when the activity is exited
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        savedInstanceState.putStringArrayList("names", names);
+        savedInstanceState.putStringArrayList("childrenUsername", childrenUsername);
+        savedInstanceState.putString("username", username);
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
-        }
 
-        latitude = 45.497236;
-        longitude = -73.579023;
-
+    //Restore the saved data when the activity resumes
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+        names = savedInstanceState.getStringArrayList("names");
+        childrenUsername = savedInstanceState.getStringArrayList("childrenUsername");
+        username = savedInstanceState.getString("username");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }
