@@ -28,7 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if(true){
                     BackgroundWorker backgroundWorker = new BackgroundWorker(RegisterActivity.this);
-                    backgroundWorker.register(username.getText().toString(), password.getText().toString(), email.getText().toString(), "guardian", null);
+                    backgroundWorker.register(username.getText().toString(), password.getText().toString(), email.getText().toString(), "Guardian");
                 }
                 else {
                     if (username.getText().toString().equals("") || password.getText().toString().equals("") || email.getText().toString().equals("")) {
