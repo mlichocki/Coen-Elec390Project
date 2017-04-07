@@ -36,21 +36,20 @@ public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
     double latitude, longitude;
-    Marker marker = null;
+    Marker marker = null, beaconMarker = null;
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
     String childSelected, username;
-    LatLng savedPosition;
-    double lat, lon;
+    double lat = 1000, lon = 1000, radius = 20;
     Button setBeacon;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+    int refreshRate = 1000 * 10; //Time rates are in milliseconds
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_display);
-
-        final int refreshRate = 1000 * 30; //Time rates are in milliseconds
 
         //If this is the first instance of the activity starting
         if (savedInstanceState == null) {
@@ -98,15 +97,14 @@ public class MapDisplayActivity extends AppCompatActivity
         setBeacon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //savePosition();
-                if((lat != 0.0)&&(lon != 0.0)){
-                    savedPosition = new LatLng(lat, lon);
-                    //save in the database instead
-                    //BackgroundWorker backgroundWorker = new BackgroundWorker();
-                    //backgroundWorker.seBeacon(lat, lon);
-                    map.clear();
-                    map.addMarker(new MarkerOptions().position(savedPosition));
-                    Toast.makeText(getApplicationContext(), "Point Saved!", Toast.LENGTH_SHORT).show();
+                if(beaconMarker != null){
+                    beaconMarker.remove();
+                }
+                if(!((lat > 90) || (lat < 0) || (Math.abs(lon) > 180))){
+                    beaconMarker = map.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("Beacon").snippet("Lat: " + lat + "\n" + "Long: " + lon));
+                    backgroundWorker.setBeacon(map, username, childSelected, lat, lon, radius);
+                    lat = 1000;
+                    lon = 1000;
                 }
             }
         });
@@ -121,8 +119,6 @@ public class MapDisplayActivity extends AppCompatActivity
         //Set the map to a basic grid style
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        //update the map
-        //updateMapDisplay(childSelected);
         getLatLong(childSelected);
         //set the starting position marker
         marker = map.addMarker(new MarkerOptions()
@@ -139,9 +135,9 @@ public class MapDisplayActivity extends AppCompatActivity
             @Override
             public void onMapClick(LatLng pointTouch) {
                 map.clear();
-                map.addMarker(new MarkerOptions().position(pointTouch));
                 lat = pointTouch.latitude;
                 lon = pointTouch.longitude;
+                map.addMarker(new MarkerOptions().position(pointTouch).title("Beacon").snippet("Lat: " + lat + "\n" + "Long: " + lon));
             }
         });
 
@@ -180,16 +176,6 @@ public class MapDisplayActivity extends AppCompatActivity
 
                     childSelected = spinner.getSelectedItem().toString().trim();
                     updateMapDisplay(childSelected);
-                    //Retrieve the coordinates
-                    //getLatLong(childSelected);
-                    //Remove the marker of the "old" position
-                    //marker.remove();
-                    //Add a new marker at for the newest positions
-                    /*marker = map.addMarker(new MarkerOptions()
-                            .position(new LatLng(latitude, longitude))
-                            .title("Lat: " + latitude + " | " + "Long: " + longitude));*/
-                    //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
-                    //map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
 
                 }
 
@@ -225,6 +211,10 @@ public class MapDisplayActivity extends AppCompatActivity
             //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
         }
+
+        if(beaconMarker != null){
+            beaconMarker = map.addMarker(new MarkerOptions().position(beaconMarker.getPosition()).title("Beacon").snippet("Lat: " + latitude + "\n" + "Long: " + longitude));
+        }
     }
 
     //Retrieve the latitude and longitude of the most recent position
@@ -247,22 +237,19 @@ public class MapDisplayActivity extends AppCompatActivity
     //Save the following data when the activity is exited
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
-        super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putStringArrayList("names", names);
         savedInstanceState.putStringArrayList("childrenUsername", childrenUsername);
         savedInstanceState.putString("username", username);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
     //Restore the saved data when the activity resumes
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
-        super.onRestoreInstanceState(savedInstanceState);
         names = savedInstanceState.getStringArrayList("names");
         childrenUsername = savedInstanceState.getStringArrayList("childrenUsername");
         username = savedInstanceState.getString("username");
+        super.onRestoreInstanceState(savedInstanceState);
     }
-
-
-
 }
