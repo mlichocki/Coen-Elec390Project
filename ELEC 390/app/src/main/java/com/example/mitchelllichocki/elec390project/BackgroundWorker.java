@@ -60,6 +60,11 @@ public class BackgroundWorker{
                     else if(role.equals("CHILD")){
                         Intent intent = new Intent(context, ChildActivity.class);
                         intent.putExtra("username", username);
+
+                        Intent childService = new Intent(context,  ChildService.class);
+                        childService.putExtra("username", username);
+
+                        context.startService(childService);
                         context.startActivity(intent);
                     }
                 }

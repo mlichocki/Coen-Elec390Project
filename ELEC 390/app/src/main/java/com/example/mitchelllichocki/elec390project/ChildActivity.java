@@ -3,7 +3,6 @@ package com.example.mitchelllichocki.elec390project;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -12,10 +11,10 @@ public class ChildActivity extends AppCompatActivity {
 
     Button emergency_text, emergency_call, help, coordinates_button, add_contact;
     String username;
-    final int refreshRate = 1000*5;
+    //final int refreshRate = 1000*5;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
     LocationService locationService;
-    double lastTransLat = 0, lastTransLong = 0;
+    //double lastTransLat = 0, lastTransLong = 0;
 
 
     @Override
@@ -93,7 +92,7 @@ public class ChildActivity extends AppCompatActivity {
             }
         });
 
-
+        /* Using ChildService to always run this function following a successful child login.
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -113,6 +112,6 @@ public class ChildActivity extends AppCompatActivity {
                 handler.postDelayed(this, refreshRate);
             }
         }, 0); //mapLoadTime is the delay for the map to load
-
+        */
     }
 }
