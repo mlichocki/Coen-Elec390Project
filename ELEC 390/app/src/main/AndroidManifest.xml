@@ -46,6 +46,9 @@
             android:enabled="true"
             android:exported="true"
             android:process=":ServiceProcess"></service>
+      
+        <activity android:name=".SuccessfulAdd" />
+        <activity android:name=".AddingContact"></activity>
     </application>
 
 </manifest>
