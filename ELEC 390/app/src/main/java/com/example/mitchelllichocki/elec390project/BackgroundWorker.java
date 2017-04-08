@@ -7,9 +7,13 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +22,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * Created by mitchelllichocki on 2017-03-21.
@@ -30,7 +35,11 @@ public class BackgroundWorker{
     public final static String KEY_GETCHILDREN_URL = "http://" + KEY_IP_ADDRESS + "/getchildren.php";
     public final static String KEY_REGISTER_URL = "http://" + KEY_IP_ADDRESS + "/register.php";
     public final static String KEY_ADDCHILD_URL = "http://" + KEY_IP_ADDRESS + "/addchild.php";
+    public final static String KEY_POSTCOORD_URL = "http://" + KEY_IP_ADDRESS + "/postcoord.php";
+    public final static String KEY_FETCHCOORD_URL = "http://" + KEY_IP_ADDRESS + "/fetchcoord.php";
+    public final static String KEY_SETBEACON_URL = "http://" + KEY_IP_ADDRESS + "/setbeacon.php";
     public Context context;
+    private static BackgroundWorker instance = null;
 
     public BackgroundWorker(Context context){
         this.context = context;
@@ -50,12 +59,14 @@ public class BackgroundWorker{
                     }
                     else if(role.equals("CHILD")){
                         Intent intent = new Intent(context, ChildActivity.class);
-                        String guardian = jsonObject.getString("guardian");
-                        intent.putExtra("guardian", guardian);
                         intent.putExtra("username", username);
+
+                        Intent childService = new Intent(context,  ChildService.class);
+                        childService.putExtra("username", username);
+
+                        context.startService(childService);
                         context.startActivity(intent);
                     }
-
                 }
                 catch(JSONException e){
                     e.printStackTrace();
@@ -174,7 +185,7 @@ public class BackgroundWorker{
         requestQueue.add(stringRequest);
     }
 
-    public void register(final String username, final String password, final String email, final String role, final String guardian){
+    public void register(final String username, final String password, final String email, final String role){
         StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_REGISTER_URL,new Response.Listener<String>(){
             @Override
             public void onResponse(String response){
@@ -201,7 +212,6 @@ public class BackgroundWorker{
                     else{
 
                     }
-                    context.startActivity(intent);
 
                 }
                 catch(JSONException e){
@@ -224,9 +234,6 @@ public class BackgroundWorker{
                 params.put("password", password);
                 params.put("email", email);
                 params.put("role", role);
-                if(role.toUpperCase().equals("CHILD")){
-                    params.put("guardian", guardian);
-                }
                 return params;
             }
         };
@@ -234,4 +241,129 @@ public class BackgroundWorker{
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }
+
+    /*
+    The postCoordinates function checks the beacon status from each parent in the <child's name> table
+    and compares them with the child's current location. If the child is within this beacon a value of 2 is assigned,
+    if they are outside of this beacon a value of 1 is assigned. If the beacon's parameters are null then a value of 0 is set.
+    Once the beacon check is complete, each associated <guardian name> table is then updated with the child's current location.
+     */
+    public void postCoordinates(final String username, final double latitude, final double longitude, final String status){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_POSTCOORD_URL,new Response.Listener<String>(){
+            @Override
+            public void onResponse(String response){
+            }
+        },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        if(error instanceof TimeoutError) {
+                            Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }){
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("username", username);
+                params.put("latitude", String.valueOf(latitude));
+                params.put("longitude", String.valueOf(longitude));
+                params.put("status", status.toUpperCase());
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    public void fetchCoordinates(final String guardianUsername, final String childUsername, final VolleyCallback callback){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_FETCHCOORD_URL,
+
+                new Response.Listener<String>(){
+
+            @Override
+            public void onResponse(String response){
+                callback.onSuccess(response);
+            }
+
+        },
+
+                new Response.ErrorListener(){
+
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+
+                    }
+
+                }){
+
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("guardianUsername", guardianUsername);
+                params.put("childUsername", childUsername);
+                return params;
+
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
+    public interface VolleyCallback{
+        void onSuccess(String result);
+    }
+
+    public void setBeacon(final GoogleMap map, final String guardianUsername, final String childUsername, final double Blatitude, final double Blongitude, final double Bradius){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_SETBEACON_URL,new Response.Listener<String>(){
+            @Override
+            public void onResponse(String response){
+                try{
+                    JSONObject jsonObject = new JSONObject(response);
+                    String role = jsonObject.getString("status").toUpperCase();
+                    if(role.equals("SUCCESS")){
+                        map.clear();
+                        map.addMarker(new MarkerOptions().position(new LatLng(Blatitude, Blongitude)));
+                        Toast.makeText(context, "Point Saved!", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(role.equals("FAIL")){
+                        map.clear();
+                        Toast.makeText(context, "Beacon Failed!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                catch(JSONException e){
+                    e.printStackTrace();
+                }
+
+            }
+        },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                    }
+
+                }) {
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("guardianUsername", guardianUsername);
+                params.put("childUsername", childUsername);
+                params.put("Blatitude", Double.toString(Blatitude));
+                params.put("Blongitude", Double.toString(Blongitude));
+                params.put("Bradius", Double.toString(Bradius));
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
+
 }
