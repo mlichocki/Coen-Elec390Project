@@ -25,35 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="190dp"
         android:id="@+id/AddContact" />
 
-    <Button
-        android:text="Help!"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="108dp"
-        android:id="@+id/HelpBtn" />
 
-    <Button
-        android:text="Emergency Call"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/HelpBtn"
-        android:layout_alignRight="@+id/HelpBtn"
-        android:layout_alignEnd="@+id/HelpBtn"
-        android:layout_marginTop="44dp"
-        android:id="@+id/EM_CALL" />
-
-    <Button
-        android:text="Emergency Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/EM_CALL"
-        android:layout_alignLeft="@+id/EM_CALL"
-        android:layout_alignStart="@+id/EM_CALL"
-        android:layout_marginTop="41dp"
-        android:id="@+id/EM_TEXT" />
 </RelativeLayout>
