@@ -2,6 +2,8 @@ package com.example.mitchelllichocki.elec390project;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -14,11 +16,14 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,8 +115,15 @@ public class BackgroundWorker{
                             children.add(tempJSON.getString("name"));
                             children.add(tempJSON.getString("username"));
                         }
-                        intent.putExtra("children", children);
-                        intent.putExtra("username", username);
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        Gson gson = new Gson();
+                        String json = gson.toJson(children);
+                        editor.remove("children");
+                        editor.putString("children", json);
+                        json = gson.toJson(username);
+                        editor.putString("username", json);
+                        editor.commit();
                     }
                     else{
 
@@ -148,12 +160,22 @@ public class BackgroundWorker{
             @Override
             public void onResponse(String response){
 
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                Gson gson = new Gson();
+                String json = sharedPreferences.getString("children", null);
+                Type type = new TypeToken<ArrayList<String>>() {}.getType();
+                ArrayList<String> children = gson.fromJson(json, type);
+
                 try{
                     JSONObject jsonObject = new JSONObject(response);
                     Intent intent = new Intent(context, GuardianActivity.class);
                     children.add(jsonObject.getString("name"));
                     children.add(jsonObject.getString("username"));
-                    intent.putExtra("children", children);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    json = gson.toJson(children);
+                    editor.putString("children", json);
+                    editor.commit();
+
                     intent.putExtra("username", guardianUsername);
                     context.startActivity(intent);
                 }

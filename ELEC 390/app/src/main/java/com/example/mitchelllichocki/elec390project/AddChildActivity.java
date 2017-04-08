@@ -4,12 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class AddChildActivity extends AppCompatActivity {
@@ -27,8 +32,11 @@ public class AddChildActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_child_activity);
 
         Intent intent = getIntent();
-        children = intent.getStringArrayListExtra("children");
-        guardianUsername = intent.getStringExtra("guardianUsername");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("username", null);
+        Type type = new TypeToken<String>() {}.getType();
+        guardianUsername = gson.fromJson(json, type);
 
         usr = (EditText) findViewById(R.id.usr);
         psd = (EditText) findViewById(R.id.psd);

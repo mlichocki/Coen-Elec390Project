@@ -1,8 +1,10 @@
 package com.example.mitchelllichocki.elec390project;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,10 +24,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import static com.example.mitchelllichocki.elec390project.R.id.spinner;
@@ -55,8 +60,17 @@ public class MapDisplayActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             ArrayList<String> tempChildren;
             Intent intent = getIntent();
-            tempChildren = intent.getStringArrayListExtra("children");
-            username = intent.getStringExtra("username");
+            //tempChildren = intent.getStringArrayListExtra("children");
+            //username = intent.getStringExtra("username");
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            Gson gson = new Gson();
+            String json = sharedPreferences.getString("children", null);
+            Type type = new TypeToken<ArrayList<String>>() {}.getType();
+            tempChildren = gson.fromJson(json, type);
+            json = sharedPreferences.getString("username", null);
+            type = new TypeToken<String>() {}.getType();
+            username = gson.fromJson(json, type);
 
             if (tempChildren != null) {
                 for (int i = 0; i < tempChildren.size(); i++) {
