@@ -110,9 +110,8 @@ public class MapDisplayActivity extends AppCompatActivity
             public void onClick(View v) {
                 //savePosition();
                 if(savedPosition != null){
-                    //save in the database instead
-                    //BackgroundWorker backgroundWorker = new BackgroundWorker();
-                    //backgroundWorker.seBeacon(lat, lon);
+                    //saved in the database
+                    backgroundWorker.setBeacon(map, username, childSelected, savedPosition.latitude, savedPosition.longitude, savedRadius);
 
                     // this code only allows one saved region at a time
                     if (mCircles != null){mCircles.clear();}
@@ -166,7 +165,12 @@ public class MapDisplayActivity extends AppCompatActivity
                 //beaconMarker = map.addMarker(new MarkerOptions().position(pointTouch).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 lat = centerOfRegion.latitude;
                 lon = centerOfRegion.longitude;
-                savedPosition = centerOfRegion;
+                if(!((lat > 90) || (lat < 0) || (Math.abs(lon) > 180))){
+                    savedPosition = centerOfRegion;
+                }else{
+                    savedPosition = null;
+                }
+
                 if (mCircles != null){
                     mCircles.clear();
                     map.clear();
