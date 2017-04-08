@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">ELEC 390 Project</string>
+    <string name="app_name">Secure Track</string>
+
+
+    <string-array name="spinner_item">
+
+        <item>Select Emergency Contact to Call</item>
+        <item>Emergency Contact 1</item>
+        <item>Emergency Contact 2</item>
+        <item>Emergency Contact 3</item>
+
+    </string-array>
+
+
+    <string-array name="spinner_item2">
+
+        <item>Select Emergency Contact to Text</item>
+        <item>Emergency Contact 1</item>
+        <item>Emergency Contact 2</item>
+        <item>Emergency Contact 3</item>
+
+    </string-array>
+
+
+
 </resources>

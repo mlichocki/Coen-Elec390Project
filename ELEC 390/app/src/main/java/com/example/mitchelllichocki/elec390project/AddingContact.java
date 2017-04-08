@@ -1,13 +1,17 @@
 package com.example.mitchelllichocki.elec390project;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
+import android.net.Uri;
 
 
 public class AddingContact extends AppCompatActivity {
@@ -20,6 +24,8 @@ public class AddingContact extends AppCompatActivity {
     protected    EditText Number3;
     Button editContactsButton = null;
     Button saveButton = null;
+    Spinner spinner;
+    Spinner spinner2;
 
 
 
@@ -27,6 +33,106 @@ public class AddingContact extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adding_contact);
+
+
+        //calling spinner
+
+
+
+        spinner = (Spinner)findViewById(R.id.spinner);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id){
+
+
+                SharedPreferences sharedPref = getSharedPreferences("Contact_G", Context.MODE_PRIVATE);
+
+                switch (position){
+                    case 0:
+                        break;
+                    case 1:
+
+                        Intent callIntent1=new Intent(Intent.ACTION_DIAL);
+                        callIntent1.setData(Uri.parse("tel:" + sharedPref.getString("Number1", "")));
+                        startActivity(callIntent1);
+
+                        break;
+                    case 2:
+
+                        Intent callIntent2=new Intent(Intent.ACTION_DIAL);
+                        callIntent2.setData(Uri.parse("tel:" + sharedPref.getString("Number2", "")));
+                        startActivity(callIntent2);
+
+                        break;
+                    case 3:
+
+                       Intent callIntent3=new Intent(Intent.ACTION_DIAL);
+                        callIntent3.setData(Uri.parse("tel:" + sharedPref.getString("Number3", "")));
+                        startActivity(callIntent3);
+
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+
+    });
+
+
+        //texting spinner
+
+
+
+        spinner2 = (Spinner)findViewById(R.id.spinner2);
+
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id){
+
+
+                SharedPreferences sharedPref = getSharedPreferences("Contact_G", Context.MODE_PRIVATE);
+
+                switch (position){
+                    case 0:
+                        break;
+                    case 1:
+
+                        Intent textIntent1= new Intent (Intent.ACTION_VIEW, Uri.parse ("sms:" + sharedPref.getString("Number1", "")));
+                        textIntent1.putExtra("sms_body","Need Help");
+                        startActivity(textIntent1);
+
+                        break;
+                    case 2:
+
+                        Intent textIntent2= new Intent (Intent.ACTION_VIEW, Uri.parse ("sms:" + sharedPref.getString("Number2", "")));
+                        textIntent2.putExtra("sms_body","Need Help");
+                        startActivity(textIntent2);
+
+                        break;
+                    case 3:
+
+                        Intent textIntent3= new Intent (Intent.ACTION_VIEW, Uri.parse ("sms:" + sharedPref.getString("Number3", "")));
+                        textIntent3.putExtra("sms_body","Need Help");
+                        startActivity(textIntent3);
+
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+
+        });
 
 
         Name1 = (EditText) findViewById(R.id.Name1);
