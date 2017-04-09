@@ -1,7 +1,6 @@
 package com.example.mitchelllichocki.elec390project;
 
 import android.content.SharedPreferences;
-import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -46,8 +45,9 @@ import static com.example.mitchelllichocki.elec390project.R.menu.menu_actionbar;
 public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
-    double latitude, longitude;
-    Marker marker = null, beaconMarker = null;
+    double latitude = 1000, longitude = 1000;
+    int test;
+    Marker marker = null;
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
     String childSelected, username;
@@ -55,10 +55,10 @@ public class MapDisplayActivity extends AppCompatActivity
     LatLng savedPosition = null; //default
     double savedRadius = 50.0; //default
     double lat, lon;
-    //double lat = 1000, lon = 1000, radius = 20;
     Button setBeacon;
-    BackgroundWorker backgroundWorker = new BackgroundWorker(this);
     private List<DraggableCircle> mCircles = new ArrayList<>(1);
+    boolean initialization = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,18 +102,6 @@ public class MapDisplayActivity extends AppCompatActivity
         //set the back button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //Continually refresh the map every refreshRate seconds
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run(){
-                updateMapDisplay(childSelected);
-                //Run this script every 10 seconds
-                handler.postDelayed(this, refreshRate);
-            }
-        }, 0); //mapLoadTime is the delay for the map to load
-
-
         setBeacon = (Button)findViewById(R.id.setBeacon);
         setBeacon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +109,7 @@ public class MapDisplayActivity extends AppCompatActivity
                 //savePosition();
                 if(savedPosition != null){
                     //saved in the database
+                    BackgroundWorker backgroundWorker = new BackgroundWorker(MapDisplayActivity.this);
                     backgroundWorker.setBeacon(map, username, childSelected, savedPosition.latitude, savedPosition.longitude, savedRadius);
 
                     // this code only allows one saved region at a time
@@ -129,13 +118,9 @@ public class MapDisplayActivity extends AppCompatActivity
                     savedRegion = new DraggableCircle(savedPosition, savedRadius); // default radius is 50 meters
                     savedRegion.hideMarkers();
                     mCircles.add(savedRegion);
-                    //making sure we only save the same reagion once
+                    //making sure we only save the same region once
                     savedPosition = null;
                     savedRadius = 50.0;
-
-                    //if (beaconMarker != null){beaconMarker.remove(); } // this makes sure there is only one beacon
-                    // to remove this line --> one must implement a function that manually removes beacons
-                    //beaconMarker = map.addMarker(new MarkerOptions().position(savedPosition).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
                     Toast.makeText(getApplicationContext(), "Beacon Set!", Toast.LENGTH_SHORT).show();
                     // make sure to save this beacon's coordinates
@@ -144,6 +129,18 @@ public class MapDisplayActivity extends AppCompatActivity
                 }
             }
         });
+
+        //Continually refresh the map every refreshRate seconds
+        final Handler handler = new Handler();
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateMapDisplay(childSelected);
+                //Run this script every 10 seconds
+                handler.postDelayed(this, refreshRate);
+            }
+        }, 1000); //mapLoadTime is the delay for the map to load
 
     }
 
@@ -155,14 +152,14 @@ public class MapDisplayActivity extends AppCompatActivity
         //Set the map to a basic grid style
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        getLatLong(childSelected);
+        //getLatLong(childSelected);
         //set the starting position marker
-        marker = map.addMarker(new MarkerOptions()
+        /*marker = map.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .title("Lat: " + latitude + " | " + "Long: " + longitude));
-
+        */
         //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+        //map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
 
         //Assign the Google Map object "map" to this map
         this.map = map;
@@ -170,9 +167,6 @@ public class MapDisplayActivity extends AppCompatActivity
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
             @Override
             public void onMapClick(LatLng centerOfRegion) {
-                //map.clear();
-                //if (beaconMarker != null){beaconMarker.remove(); }
-                //beaconMarker = map.addMarker(new MarkerOptions().position(pointTouch).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 lat = centerOfRegion.latitude;
                 lon = centerOfRegion.longitude;
                 if(!((lat > 90) || (lat < 0) || (Math.abs(lon) > 180))){
@@ -183,7 +177,7 @@ public class MapDisplayActivity extends AppCompatActivity
 
                 if (mCircles != null){
                     mCircles.clear();
-                    map.clear();
+                    //map.clear();
                     if (savedRegion != null){
                         DraggableCircle savedCircle = new DraggableCircle(savedRegion.getCenter(), savedRegion.getRadius());
                         savedCircle.hideMarkers();
@@ -251,9 +245,9 @@ public class MapDisplayActivity extends AppCompatActivity
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
                     childSelected = spinner.getSelectedItem().toString().trim();
-                    updateMapDisplay(childSelected);
+                        updateMapDisplay(childSelected);
+                    initialization = false;
 
                 }
 
@@ -281,7 +275,9 @@ public class MapDisplayActivity extends AppCompatActivity
         }
         if((latitude > 90) || (latitude < 0) || (Math.abs(longitude) > 180)){
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(45.5, -73.566667), 1));
-            Toast.makeText(this,"Unable to locate child!",Toast.LENGTH_SHORT).show();
+            if(!initialization) {
+                Toast.makeText(this, "Unable to locate child!", Toast.LENGTH_SHORT).show();
+            } initialization = false;
         }
         else {
             //Add a new marker at for the newest positions
@@ -295,13 +291,20 @@ public class MapDisplayActivity extends AppCompatActivity
 
     //Retrieve the latitude and longitude of the most recent position
     public void getLatLong(String name){
+        BackgroundWorker backgroundWorker = new BackgroundWorker(MapDisplayActivity.this);
         backgroundWorker.fetchCoordinates(username, childrenUsername.get(names.indexOf(name)), new BackgroundWorker.VolleyCallback() {
             @Override
             public void onSuccess(String response) {
                 try{
                     JSONObject jsonObject = new JSONObject(response);
-                    latitude = Double.parseDouble(jsonObject.getString("latitude"));
-                    longitude = Double.parseDouble(jsonObject.getString("longitude"));
+                    if( jsonObject.isNull("latitude") || jsonObject.isNull("longitude") ){
+                        latitude = 1000;
+                        longitude = 1000;
+                    }
+                    else {
+                        latitude = Double.parseDouble(jsonObject.getString("latitude"));
+                        longitude = Double.parseDouble(jsonObject.getString("longitude"));
+                    }
                 }
                 catch(JSONException e){
                     e.printStackTrace();
