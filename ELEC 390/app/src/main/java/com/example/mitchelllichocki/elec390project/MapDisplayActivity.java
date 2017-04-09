@@ -1,6 +1,5 @@
 package com.example.mitchelllichocki.elec390project;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,12 +55,14 @@ public class MapDisplayActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_display);
 
-        //If this is the first instance of the activity starting
+        //Create a Map Fragment and pass the id of the map via R.id.<id>
+        // where <id> was set in activity_map_display.xml
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        //Assign the map to the fragment
+        mapFragment.getMapAsync(MapDisplayActivity.this);
+
         if (savedInstanceState == null) {
             ArrayList<String> tempChildren;
-            Intent intent = getIntent();
-            //tempChildren = intent.getStringArrayListExtra("children");
-            //username = intent.getStringExtra("username");
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             Gson gson = new Gson();
@@ -87,13 +88,6 @@ public class MapDisplayActivity extends AppCompatActivity
 
         //set the back button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        //Create a Map Fragment and pass the id of the map via R.id.<id>
-        // where <id> was set in activity_map_display.xml
-        final MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-        //Assign the map to the fragment
-        mapFragment.getMapAsync(this);
 
         //Continually refresh the map every refreshRate seconds
         final Handler handler = new Handler();
@@ -212,7 +206,9 @@ public class MapDisplayActivity extends AppCompatActivity
         //child's username: childrenUsername.get(names.indexOf(name));
         getLatLong(name);
         //Remove the marker of the "old" position
-        marker.remove();
+        if(marker != null) {
+            marker.remove();
+        }
         if((latitude > 90) || (latitude < 0) || (Math.abs(longitude) > 180)){
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(45.5, -73.566667), 1));
             Toast.makeText(this,"Unable to locate child!",Toast.LENGTH_SHORT).show();

@@ -1,7 +1,5 @@
 package com.example.mitchelllichocki.elec390project;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,7 +29,6 @@ public class AddChildActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_child_activity);
 
-        Intent intent = getIntent();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Gson gson = new Gson();
         String json = sharedPreferences.getString("username", null);
@@ -41,32 +38,19 @@ public class AddChildActivity extends AppCompatActivity {
         usr = (EditText) findViewById(R.id.usr);
         psd = (EditText) findViewById(R.id.psd);
         name = (EditText) findViewById(R.id.name);
-        phone = (EditText) findViewById(R.id.phone);
         usrbtn = (Button) findViewById(R.id.usrbtn);
-        final BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+
         usrbtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
 
                 //IF STATEMENT FOR PROPER CREDENTIALS
-                if ( !((usr.getText().toString().equals("") || psd.getText().toString().equals("")) || name.getText().toString().equals("")) ){
-                    Toast.makeText(getApplicationContext(),"Child Successfully Added", Toast.LENGTH_LONG).show();
+                if ( (( usr.getText().toString().equals("") || psd.getText().toString().equals("")) || name.getText().toString().equals("")) ){
+                    Toast.makeText(getApplicationContext(),"Incomplete Fields", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    BackgroundWorker backgroundWorker = new BackgroundWorker(AddChildActivity.this);
                     backgroundWorker.addChild(guardianUsername, usr.getText().toString(), name.getText().toString(), psd.getText().toString(), children);
-
-
-
-                    // SHARED PREFERENCE STUFF - MATT - APRIL5TH
-
-                    SharedPreferences sharedPref = getSharedPreferences("Contact_C", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("Name", name.getText().toString());
-                    editor.putString("Number", phone.getText().toString());
-                    editor.apply();
-
-
-
-
-
                 }
 
             }

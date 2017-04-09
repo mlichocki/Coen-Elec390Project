@@ -5,17 +5,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
     protected EditText username;
     protected EditText password;
-
-    //Hardcoded profiles
-    protected String childUsername = "Child", childPassword = "Child", guardianUsername = "Guardian", guardianPassword = "Guardian";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +21,6 @@ public class LoginActivity extends AppCompatActivity {
 
         username = (EditText)findViewById(R.id.etUsername);
         password = (EditText)findViewById(R.id.etPassword);
-        final CheckBox rememberMe = (CheckBox)findViewById(R.id.cbRememberMe);
         final Button loginButton = (Button)findViewById(R.id.loginButton);
         TextView registerLink = (TextView) findViewById(R.id.registerLink);
 
@@ -43,8 +39,14 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener(){
 
             public void onClick(View v){
-                BackgroundWorker backgroundWorker = new BackgroundWorker(LoginActivity.this);
-                backgroundWorker.login(username.getText().toString(), password.getText().toString());
+
+                if (username.getText().toString().equals("") || password.getText().toString().equals("") ){
+                    Toast toast = Toast.makeText(getApplicationContext(), "Incomplete Login", Toast.LENGTH_LONG);
+                    toast.show();
+                } else {
+                    BackgroundWorker backgroundWorker = new BackgroundWorker(LoginActivity.this);
+                    backgroundWorker.login(username.getText().toString(), password.getText().toString());
+                }
 
             }
 
