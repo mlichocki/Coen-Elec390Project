@@ -20,7 +20,7 @@ public class AddChildActivity extends AppCompatActivity {
     //Creation of edittext and button
 
     Button usrbtn;
-    EditText usr,psd,name,phone;
+    EditText usr,psd,name;
     String guardianUsername;
     ArrayList<String> children;
 
