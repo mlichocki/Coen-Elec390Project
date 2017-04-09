@@ -1,6 +1,9 @@
 package com.example.mitchelllichocki.elec390project;
 
 import android.content.SharedPreferences;
+import android.content.Intent;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -20,6 +23,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -31,6 +37,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.mitchelllichocki.elec390project.R.id.spinner;
 import static com.example.mitchelllichocki.elec390project.R.menu.menu_actionbar;
@@ -44,11 +51,14 @@ public class MapDisplayActivity extends AppCompatActivity
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
     String childSelected, username;
-    double lat = 1000, lon = 1000, radius = 20;
+    DraggableCircle savedRegion;
+    LatLng savedPosition = null; //default
+    double savedRadius = 50.0; //default
+    double lat, lon;
+    //double lat = 1000, lon = 1000, radius = 20;
     Button setBeacon;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
-    int refreshRate = 1000 * 10; //Time rates are in milliseconds
-
+    private List<DraggableCircle> mCircles = new ArrayList<>(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,9 @@ public class MapDisplayActivity extends AppCompatActivity
         //Assign the map to the fragment
         mapFragment.getMapAsync(MapDisplayActivity.this);
 
+        final int refreshRate = 1000 * 10; //Time rates are in milliseconds
+
+        //If this is the first instance of the activity starting
         if (savedInstanceState == null) {
             ArrayList<String> tempChildren;
 
@@ -105,14 +118,29 @@ public class MapDisplayActivity extends AppCompatActivity
         setBeacon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(beaconMarker != null){
-                    beaconMarker.remove();
-                }
-                if(!((lat > 90) || (lat < 0) || (Math.abs(lon) > 180))){
-                    beaconMarker = map.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("Beacon").snippet("Lat: " + lat + "\n" + "Long: " + lon));
-                    backgroundWorker.setBeacon(map, username, childSelected, lat, lon, radius);
-                    lat = 1000;
-                    lon = 1000;
+                //savePosition();
+                if(savedPosition != null){
+                    //saved in the database
+                    backgroundWorker.setBeacon(map, username, childSelected, savedPosition.latitude, savedPosition.longitude, savedRadius);
+
+                    // this code only allows one saved region at a time
+                    if (mCircles != null){mCircles.clear();}
+                    map.clear();
+                    savedRegion = new DraggableCircle(savedPosition, savedRadius); // default radius is 50 meters
+                    savedRegion.hideMarkers();
+                    mCircles.add(savedRegion);
+                    //making sure we only save the same reagion once
+                    savedPosition = null;
+                    savedRadius = 50.0;
+
+                    //if (beaconMarker != null){beaconMarker.remove(); } // this makes sure there is only one beacon
+                    // to remove this line --> one must implement a function that manually removes beacons
+                    //beaconMarker = map.addMarker(new MarkerOptions().position(savedPosition).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                    Toast.makeText(getApplicationContext(), "Beacon Set!", Toast.LENGTH_SHORT).show();
+                    // make sure to save this beacon's coordinates
+                } else {
+                    Toast.makeText(getApplicationContext(), "Click on the map to add a beacon", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -141,14 +169,56 @@ public class MapDisplayActivity extends AppCompatActivity
 
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
             @Override
-            public void onMapClick(LatLng pointTouch) {
-                map.clear();
-                lat = pointTouch.latitude;
-                lon = pointTouch.longitude;
-                map.addMarker(new MarkerOptions().position(pointTouch).title("Beacon").snippet("Lat: " + lat + "\n" + "Long: " + lon));
+            public void onMapClick(LatLng centerOfRegion) {
+                //map.clear();
+                //if (beaconMarker != null){beaconMarker.remove(); }
+                //beaconMarker = map.addMarker(new MarkerOptions().position(pointTouch).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                lat = centerOfRegion.latitude;
+                lon = centerOfRegion.longitude;
+                if(!((lat > 90) || (lat < 0) || (Math.abs(lon) > 180))){
+                    savedPosition = centerOfRegion;
+                }else{
+                    savedPosition = null;
+                }
+
+                if (mCircles != null){
+                    mCircles.clear();
+                    map.clear();
+                    if (savedRegion != null){
+                        DraggableCircle savedCircle = new DraggableCircle(savedRegion.getCenter(), savedRegion.getRadius());
+                        savedCircle.hideMarkers();
+                        mCircles.add(savedCircle);
+                    }
+                }
+                DraggableCircle circle = new DraggableCircle(centerOfRegion, 50); // default radius is 50 meters
+                mCircles.add(circle);
             }
         });
 
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener(){
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
+            }
+        });
+
+        map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener(){
+            @Override
+            public void onMarkerDragStart(Marker marker) {onMarkerMoved(marker);}
+
+            @Override
+            public void onMarkerDrag(Marker marker) {onMarkerMoved(marker);}
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {onMarkerMoved(marker);}
+
+            private void onMarkerMoved(Marker marker){
+                for (DraggableCircle draggableCircle : mCircles){
+                    if (draggableCircle.onMarkerMoved(marker))
+                        break;
+                }
+            }
+        });
 
     }
 
@@ -221,10 +291,6 @@ public class MapDisplayActivity extends AppCompatActivity
             //Center the camera of the map to those coordinates with a zoom level of 15 (street view)
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
         }
-
-        if(beaconMarker != null){
-            beaconMarker = map.addMarker(new MarkerOptions().position(beaconMarker.getPosition()).title("Beacon").snippet("Lat: " + latitude + "\n" + "Long: " + longitude));
-        }
     }
 
     //Retrieve the latitude and longitude of the most recent position
@@ -247,19 +313,78 @@ public class MapDisplayActivity extends AppCompatActivity
     //Save the following data when the activity is exited
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putStringArrayList("names", names);
         savedInstanceState.putStringArrayList("childrenUsername", childrenUsername);
         savedInstanceState.putString("username", username);
-        super.onSaveInstanceState(savedInstanceState);
     }
 
 
     //Restore the saved data when the activity resumes
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
         names = savedInstanceState.getStringArrayList("names");
         childrenUsername = savedInstanceState.getStringArrayList("childrenUsername");
         username = savedInstanceState.getString("username");
-        super.onRestoreInstanceState(savedInstanceState);
     }
+
+    // beacon region
+    private class DraggableCircle{
+        private final Marker mCenter;
+        private final Marker mRadius;
+        private final Circle mCircle;
+        private double mRadiusMeters;
+
+        public DraggableCircle(LatLng center, double radiusMeters){
+            mRadiusMeters = radiusMeters;
+            mCenter = map.addMarker(new MarkerOptions().position(center).draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mRadius = map.addMarker(new MarkerOptions().position(toRadiusLatLng(center, radiusMeters)).draggable(true)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mCircle = map.addCircle(new CircleOptions().center(center).radius(radiusMeters).strokeColor(Color.argb(200, 50, 150, 250)).fillColor(Color.argb(100, 50, 150, 250)));
+        }
+
+        public boolean onMarkerMoved(Marker marker){
+            if (marker.equals(mCenter)){
+                savedPosition = marker.getPosition();
+                mCircle.setCenter(savedPosition);
+                mRadius.setPosition(toRadiusLatLng(marker.getPosition(), mRadiusMeters));
+                return true;
+            }
+            if (marker.equals(mRadius)){
+                mRadiusMeters = toRadiusMeters(mCenter.getPosition(), mRadius.getPosition());
+                mCircle.setRadius(mRadiusMeters);
+                savedRadius = mRadiusMeters;
+                return true;
+            }
+            return false;
+        }
+
+        public void hideMarkers(){
+            mRadius.setVisible(false);
+            mCenter.setVisible(false);
+        }
+
+        public LatLng getCenter() {
+            return mCenter.getPosition();
+        }
+
+        public double getRadius() {
+            return mRadiusMeters;
+        }
+
+    }
+
+    private static LatLng toRadiusLatLng(LatLng center, double radiusMeters){
+        double radiusAngle = Math.toDegrees(radiusMeters / 6371009)/Math.cos(Math.toRadians(center.latitude));
+        return new LatLng(center.latitude, center.longitude + radiusAngle);
+    }
+
+    private static double toRadiusMeters(LatLng center, LatLng radius){
+        float[] result = new float[1];
+        Location.distanceBetween(center.latitude, center.longitude, radius.latitude, radius.longitude, result);
+        return result[0];
+    }
+
 }
