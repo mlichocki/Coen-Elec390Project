@@ -374,18 +374,15 @@ public class BackgroundWorker{
                     @Override
                     public void onErrorResponse(VolleyError error){
                         Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
-
                     }
-
                 }){
 
             @Override
-            public Map<String, String> getParams() {
+            public Map<String, String> getParams(){
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("guardianUsername", guardianUsername);
                 params.put("childUsername", childUsername);
                 return params;
-
             }
         };
 
