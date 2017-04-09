@@ -24,22 +24,16 @@ public class GuardianActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guardian);
 
-
+      
         showNotificationBtn = (Button) findViewById(R.id.showNotif);
-
         Button btn = (Button)findViewById(R.id.Add_Child);
         Notifs.InitializeNotifications();
         final Context context = this;
-        Intent intent = getIntent();
-        children = intent.getStringArrayListExtra("children");
-        username = intent.getStringExtra("username");
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GuardianActivity.this, AddChildActivity.class);
-                intent.putExtra("children", children);
-                intent.putExtra("guardianUsername", username);
                 startActivity(intent);
             }
         });
@@ -50,8 +44,6 @@ public class GuardianActivity extends AppCompatActivity {
         ViewChildrenBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v){
                 Intent intent = new Intent(GuardianActivity.this, MapDisplayActivity.class);
-                intent.putExtra("children", children);
-                intent.putExtra("username", username);
                 startActivity(intent);
             }
         });

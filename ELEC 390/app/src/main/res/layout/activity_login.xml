@@ -59,15 +59,4 @@
         android:layout_below="@+id/loginButton"
         android:layout_centerHorizontal="true" />
 
-    <CheckBox
-        android:text="Remember me"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cbRememberMe"
-        android:layout_below="@+id/etPassword"
-        android:layout_alignLeft="@+id/registerLink"
-        android:layout_alignStart="@+id/registerLink"
-        android:layout_marginLeft="47dp"
-        android:layout_marginStart="47dp"
-        android:layout_marginTop="22dp" />
 </RelativeLayout>

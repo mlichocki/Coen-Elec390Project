@@ -2,6 +2,8 @@ package com.example.mitchelllichocki.elec390project;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -14,11 +16,14 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +72,15 @@ public class BackgroundWorker{
                         context.startService(childService);
                         context.startActivity(intent);
                     }
+                    else if(role.equals("PASSWORD")){
+                        Toast.makeText(context,"INVALID PASSWORD",Toast.LENGTH_SHORT).show();
+                    }
+                    else if(role.equals("FAIL")){
+                        Toast.makeText(context,"INVALID LOGIN",Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(context,"Login Error: Contact Support",Toast.LENGTH_SHORT).show();
+                    }
                 }
                 catch(JSONException e){
                     e.printStackTrace();
@@ -100,26 +114,39 @@ public class BackgroundWorker{
             public void onResponse(String response){
 
                 try{
+
                     JSONObject jsonObject = new JSONObject(response);
                     Intent intent = new Intent(context, GuardianActivity.class);
+                    ArrayList<String> children = new ArrayList<>();
+
                     if(!jsonObject.isNull("children")) {
+
                         JSONArray associatedChildren = jsonObject.getJSONArray("children");
-                        ArrayList<String> children = new ArrayList<>();
                         for (int i = 0; i < associatedChildren.length(); i++) {
                             JSONObject tempJSON = associatedChildren.getJSONObject(i);
                             children.add(tempJSON.getString("name"));
                             children.add(tempJSON.getString("username"));
-                        }
-                        intent.putExtra("children", children);
-                        intent.putExtra("username", username);
-                    }
-                    else{
 
+                        }
                     }
+
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    Gson gson = new Gson();
+                    String json = gson.toJson(children);
+                    editor.remove("children");
+                    editor.putString("children", json);
+                    json = gson.toJson(username);
+                    editor.remove("username");
+                    editor.putString("username", json);
+                    editor.commit();
                     context.startActivity(intent);
+
                 }
                 catch(JSONException e){
+
                     e.printStackTrace();
+
                 }
 
             }
@@ -146,21 +173,71 @@ public class BackgroundWorker{
     public void addChild(final String guardianUsername, final String childUsername, final String name, final String password, final ArrayList<String> children){
         StringRequest stringRequest=new StringRequest(Request.Method.POST,KEY_ADDCHILD_URL,new Response.Listener<String>(){
             @Override
-            public void onResponse(String response){
+            public void onResponse(String response) {
 
-                try{
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                Gson gson = new Gson();
+                String json = sharedPreferences.getString("children", null);
+                Type type = new TypeToken<ArrayList<String>>() {
+                }.getType();
+                ArrayList<String> children = gson.fromJson(json, type);
+
+                try {
                     JSONObject jsonObject = new JSONObject(response);
                     Intent intent = new Intent(context, GuardianActivity.class);
-                    children.add(jsonObject.getString("name"));
-                    children.add(jsonObject.getString("username"));
-                    intent.putExtra("children", children);
-                    intent.putExtra("username", guardianUsername);
-                    context.startActivity(intent);
-                }
-                catch(JSONException e){
-                    e.printStackTrace();
-                }
+                    String status = jsonObject.getString("status").toUpperCase();
+                    //If the account is successfully created (no username account with the entered username was found)
+                    if (status.equals("SUCCESS")) {
+                        //Add the JSON String for the child's name
+                        children.add(jsonObject.getString("name"));
+                        //Add the JSON String for the child's username
+                        children.add(jsonObject.getString("username"));
+                        //Assign the ArrayList<String> children to the JSON String json
+                        json = gson.toJson(children);
+                        //Clear the stored data in SharedPreferences under the name "children" (avoid multiples)
+                        editor.remove("children");
+                        //Place the JSON String json in the sharedPreferences
+                        editor.putString("children", json);
+                        //Commit the SharedPreferences change
+                        editor.commit();
+                        //Inform user of successful registration
+                        Toast.makeText(context, "ACCOUNT REGISTRATION SUCCESSFUL", Toast.LENGTH_SHORT).show();
+                        //Take the user back to the general GuardianActivity page
+                        context.startActivity(intent);
+                    } else if (status.equals("ADDED")) {
+                        //Add the JSON String for the child's name
+                        children.add(jsonObject.getString("name"));
+                        //Add the JSON String for the child's username
+                        children.add(jsonObject.getString("username"));
+                        //Assign the ArrayList<String> children to the JSON String json
+                        json = gson.toJson(children);
+                        //Clear the stored data in SharedPreferences under the name "children" (avoid multiples)
+                        editor.remove("children");
+                        //Place the JSON String json in the sharedPreferences
+                        editor.putString("children", json);
+                        //Commit the SharedPreferences change
+                        editor.commit();
+                        //Inform user of successful registration
+                        Toast.makeText(context, "ACCOUNT ADDED SUCCESSFULLY", Toast.LENGTH_SHORT).show();
+                        //Take the user back to the general GuardianActivity page
+                        context.startActivity(intent);
+                    } else if (status.equals("PASSWORD")) {
+                        //Inform user of account existance but wrong password
+                        Toast.makeText(context, "ADD CHILD ERROR: ACCOUNT FOUND, WRONG PASSWORD", Toast.LENGTH_SHORT).show();
 
+                    }
+                    //If there is a problem with the server creating / looking for the account
+                    else if (status.equals("ERROR")) {
+                        //Inform user of problem creating or adding the child account (server issue)
+                        Toast.makeText(context, "ADD CHILD ERROR: CONTACT SUPPORT", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+
+                    e.printStackTrace();
+
+                }
             }
         },
                 new Response.ErrorListener(){

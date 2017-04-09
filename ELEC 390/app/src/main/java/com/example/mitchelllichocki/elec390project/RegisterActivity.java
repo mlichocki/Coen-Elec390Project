@@ -1,6 +1,5 @@
 package com.example.mitchelllichocki.elec390project;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -26,21 +25,14 @@ public class RegisterActivity extends AppCompatActivity {
 
             public void onClick(View v){
 
-                if(true){
+
+
+                if (username.getText().toString().equals("") || password.getText().toString().equals("") || email.getText().toString().equals("")) {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Incomplete Registration", Toast.LENGTH_LONG);
+                    toast.show();
+                } else {
                     BackgroundWorker backgroundWorker = new BackgroundWorker(RegisterActivity.this);
                     backgroundWorker.register(username.getText().toString(), password.getText().toString(), email.getText().toString(), "Guardian");
-                }
-                else {
-                    if (username.getText().toString().equals("") || password.getText().toString().equals("") || email.getText().toString().equals("")) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Incomplete Registration", Toast.LENGTH_LONG);
-                        toast.show();
-                    } else {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Credentials Saved", Toast.LENGTH_LONG);
-                        toast.show();
-                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                        intent.putExtra("username", username.getText().toString());
-                        startActivity(intent);
-                    }
                 }
             }
         });
