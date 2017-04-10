@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LocationService"
-            android:parentActivityName=".ChildActivity"/>
+            android:parentActivityName=".ChildActivity" />
         <activity
             android:name=".MapDisplayActivity"
             android:parentActivityName=".GuardianActivity" />
@@ -25,7 +25,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBZGSYfTEIHq8pKW4fZex-osUw_PE_VUbM" />
 
-        <activity android:name=".ChildActivity"/>
+        <activity android:name=".ChildActivity" />
         <activity android:name=".LoginActivity">
 
             <!-- Set MainActivity as the opening activity -->
@@ -35,19 +35,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GuardianActivity"/>
+        <activity android:name=".GuardianActivity" />
         <activity
             android:name=".RegisterActivity"
-            android:parentActivityName=".LoginActivity"></activity>
+            android:parentActivityName=".LoginActivity" />
         <activity android:name=".AddChildActivity" />
 
         <service
             android:name=".ChildService"
             android:enabled="true"
             android:exported="true"
-            android:process=":ServiceProcess"></service>
+            android:process=":ServiceProcess" />
 
-        <activity android:name=".AddingContact"></activity>
+        <activity android:name=".AddingContact" />
+
+        <service
+            android:name=".NotificationService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":ServiceProcess"></service>
     </application>
 
 </manifest>

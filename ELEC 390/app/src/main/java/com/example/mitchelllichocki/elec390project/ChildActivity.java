@@ -32,8 +32,6 @@ public class ChildActivity extends AppCompatActivity {
 
         });
 
-
-
         coordinates_button = (Button) findViewById(R.id.coordinatesButton3);
         coordinates_button.setOnClickListener(new View.OnClickListener(){
             @Override
