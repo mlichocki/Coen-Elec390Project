@@ -31,7 +31,7 @@ public class NotificationService extends Service {
 
     HashMap<Integer, String> NotifMap = new HashMap<>();
     String username = null;
-
+    //String ChildName;
     //ArrayList<String> NotifContentTitle = new ArrayList<>();
     //ArrayList<String> NotifContentText = new ArrayList<>();
     //ArrayList<Integer> NotifID = new ArrayList<>();
@@ -52,11 +52,17 @@ public class NotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID){
+        InitializeNotifications();
         Log.d("NotificationService", "onStartCommand");
         if(intent != null) {
             if (intent.hasExtra("username")) {
                 username = intent.getStringExtra("username");
             }
+            else{
+                Log.d("NotificationService", "username == null");
+            }
+        }else{
+            Log.d("NotificationService", "itent == null");
         }
         final Handler handler = new Handler();
         final int refreshRate = 1000*5;
@@ -77,16 +83,20 @@ public class NotificationService extends Service {
 
 
     public void showNotification (Integer NotificationID){
-
+        Log.d("NotificationService", "Notifications is about to show: " + NotificationID);
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new
-                NotificationCompat.Builder(context)
+                NotificationCompat.Builder(this)
                 .setContentTitle("SecureTrack")
                 .setContentText(NotifMap.get(NotificationID))
                 .setSmallIcon(R.drawable.quantum_ic_cast_white_36);
+        Log.d("NotificationService", "Notifications is RIGHT about to show: " + NotificationID);
 
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) this.getSystemService(Service.NOTIFICATION_SERVICE);
+        Log.d("NotificationService", "Notifications is RIGHT about to show *2*: " + NotificationID);
         notificationManager.notify(NotificationID, notificationBuilder.build());
+        Log.d("NotificationService", "Notifications is RIGHT about to show *3* : " + NotificationID);
         isNotifiedActive = true;
+        Log.d("NotificationService", "Notifications has been shown: " + NotificationID);
     }
 
     public void InitializeNotifications (){
@@ -110,16 +120,19 @@ public class NotificationService extends Service {
                     Log.d("NotificationService", "Json has been geted");
                     JSONObject jsonObject = new JSONObject(response);
                     Log.d("NotificationService", "get response from server");
-                    if(!jsonObject.isNull("notitifications")) {
+                    if(!jsonObject.isNull("notifications")) {
                         JSONArray tempnotifications = jsonObject.getJSONArray("notifications");
                         ArrayList<String> notifications = new ArrayList<>();
-                        Log.d("NotificationService", "get response from server 2");
+                        Log.d("NotificationService", "get response from server 2: " + tempnotifications.length());
                         for (int i = 0; i < tempnotifications.length(); i++) {
+                            Log.d("NotificationService", "get response from server 2 -> For statement");
                             JSONObject tempJSON = tempnotifications.getJSONObject(i);
                             Log.d("NotificationService", "Notification ID = " + Integer.parseInt(tempJSON.getString("notification")));
                             switch(Integer.parseInt(tempJSON.getString("notification"))){
                                 case 0: //no notification to display
-                                    showNotification(0);
+                                    Log.d("NotificationService", "Pre-notification 0");
+                                    //showNotification(0);
+                                    Log.d("NotificationService", "Post-notification 0");
                                     break;
                                 case 1: //The child has left the beacon
                                     showNotification(1);
