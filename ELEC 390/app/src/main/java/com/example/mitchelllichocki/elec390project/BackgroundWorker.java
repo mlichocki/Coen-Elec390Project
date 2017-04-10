@@ -65,12 +65,18 @@ public class BackgroundWorker{
                     }
                     else if(role.equals("CHILD")){
                         Intent intent = new Intent(context, ChildActivity.class);
-                        intent.putExtra("username", username);
+                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        Gson gson = new Gson();
+                        String json = gson.toJson(username);
+                        editor.remove("username");
+                        editor.putString("username", json);
+                        editor.commit();
 
-                        Intent childService = new Intent(context,  ChildService.class);
-                        childService.putExtra("username", username);
+                        //Intent childService = new Intent(ChildActivity,  ChildService.class);
+                        //childService.putExtra("username", username);
 
-                        context.startService(childService);
+                        //context.startService(childService);
                         context.startActivity(intent);
                     }
                     else if(role.equals("PASSWORD")){
@@ -327,9 +333,11 @@ public class BackgroundWorker{
     Once the beacon check is complete, each associated <guardian name> table is then updated with the child's current location.
      */
     public void postCoordinates(final String username, final double latitude, final double longitude, final String status){
+
         StringRequest stringRequest = new StringRequest(Request.Method.POST,KEY_POSTCOORD_URL,new Response.Listener<String>(){
             @Override
             public void onResponse(String response){
+
             }
         },
                 new Response.ErrorListener(){
