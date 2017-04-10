@@ -14,9 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LocationService"
-            android:parentActivityName=".ChildActivity"/>
-        <activity
             android:name=".MapDisplayActivity"
             android:parentActivityName=".GuardianActivity" />
         <!-- Add the API key, which is registered with Google Play Services under the name ELEC390 -->

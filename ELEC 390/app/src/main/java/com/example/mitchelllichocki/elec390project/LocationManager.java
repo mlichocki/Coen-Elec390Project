@@ -68,7 +68,7 @@ public class LocationManager extends Activity implements GoogleApiClient.Connect
         Log.d("LocationManager", "requestLocationUpdates()");
     }
 
-    private void requestLocationUpdates() {
+    private void requestLocationUpdates(){
         Log.d("LocationManager", "requestLocationUpdates()");
         // check for PERMISSIONS first
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
