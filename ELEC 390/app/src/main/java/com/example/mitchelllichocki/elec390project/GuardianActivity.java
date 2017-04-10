@@ -15,7 +15,7 @@ public class GuardianActivity extends AppCompatActivity {
 
     ArrayList<String> children = new ArrayList<>();
     String username;
-    Button showNotificationBtn;
+    //Button showNotificationBtn;
     int NotificationID = 22;
     Notifications Notifs = new Notifications();
 
@@ -25,7 +25,7 @@ public class GuardianActivity extends AppCompatActivity {
         setContentView(R.layout.activity_guardian);
 
       
-        showNotificationBtn = (Button) findViewById(R.id.showNotif);
+        //showNotificationBtn = (Button) findViewById(R.id.showNotif);
         Button btn = (Button)findViewById(R.id.Add_Child);
         Notifs.InitializeNotifications();
         final Context context = this;
@@ -48,13 +48,14 @@ public class GuardianActivity extends AppCompatActivity {
             }
         });
 
+        /*
         showNotificationBtn.setOnClickListener(new View.OnClickListener() {
 
             public void onClick (View v){
                 //finish();
                 Notifs.showNotification(context, NotificationID);
             }
-        });
+        });*/
 
     }
 
