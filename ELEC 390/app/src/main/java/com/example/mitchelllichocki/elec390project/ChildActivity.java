@@ -39,7 +39,7 @@ public class ChildActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LocationManager locationManager = new LocationManager(ChildActivity.this);
-                Toast.makeText(ChildActivity.this, Double.toString(locationManager.getMyLatitude()) + '\n' + Double.toString(locationManager.getMyLongitude()), Toast.LENGTH_LONG).show();
+                Toast.makeText(ChildActivity.this, Double.toString(locationManager.getMyLatitude()) + '\n' + Double.toString(locationManager.getMyLongitude()), Toast.LENGTH_SHORT).show();
 
             }
         });
