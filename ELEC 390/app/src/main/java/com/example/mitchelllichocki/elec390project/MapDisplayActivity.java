@@ -58,7 +58,7 @@ public class MapDisplayActivity extends AppCompatActivity
     Button setBeacon;
     private List<DraggableCircle> mCircles = new ArrayList<>(1);
     boolean initialization = true;
-
+    BackgroundWorker backgroundWorker = new BackgroundWorker(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class MapDisplayActivity extends AppCompatActivity
         //Assign the map to the fragment
         mapFragment.getMapAsync(MapDisplayActivity.this);
 
-        final int refreshRate = 1000 * 10; //Time rates are in milliseconds
+        final int refreshRate = 1000 * 100; //Time rates are in milliseconds
 
         //If this is the first instance of the activity starting
         if (savedInstanceState == null) {
@@ -109,7 +109,7 @@ public class MapDisplayActivity extends AppCompatActivity
                 //savePosition();
                 if(savedPosition != null){
                     //saved in the database
-                    BackgroundWorker backgroundWorker = new BackgroundWorker(MapDisplayActivity.this);
+                    //BackgroundWorker backgroundWorker = new BackgroundWorker(MapDisplayActivity.this);
                     backgroundWorker.setBeacon(map, username, childSelected, savedPosition.latitude, savedPosition.longitude, savedRadius);
 
                     // this code only allows one saved region at a time
@@ -177,7 +177,7 @@ public class MapDisplayActivity extends AppCompatActivity
 
                 if (mCircles != null){
                     mCircles.clear();
-                    //map.clear();
+                    map.clear();
                     if (savedRegion != null){
                         DraggableCircle savedCircle = new DraggableCircle(savedRegion.getCenter(), savedRegion.getRadius());
                         savedCircle.hideMarkers();

@@ -14,6 +14,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
@@ -72,7 +73,7 @@ public class BackgroundWorker{
                         editor.putString("username", json);
                         editor.commit();
 
-                        //Intent childService = new Intent(context,  ChildService.class);
+                        //Intent childService = new Intent(ChildActivity,  ChildService.class);
                         //childService.putExtra("username", username);
 
                         //context.startService(childService);
@@ -410,12 +411,12 @@ public class BackgroundWorker{
                     JSONObject jsonObject = new JSONObject(response);
                     String role = jsonObject.getString("status").toUpperCase();
                     if(role.equals("SUCCESS")){
-                        map.clear();
-                        map.addMarker(new MarkerOptions().position(new LatLng(Blatitude, Blongitude)));
+                        //map.clear();
+                        //map.addMarker(new MarkerOptions().position(new LatLng(Blatitude, Blongitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                         Toast.makeText(context, "Point Saved!", Toast.LENGTH_SHORT).show();
                     }
                     else if(role.equals("FAIL")){
-                        map.clear();
+                        //map.clear();
                         Toast.makeText(context, "Beacon Failed!", Toast.LENGTH_SHORT).show();
                     }
                 }
