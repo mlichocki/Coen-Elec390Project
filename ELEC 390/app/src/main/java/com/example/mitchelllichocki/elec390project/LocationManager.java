@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,32 +33,35 @@ public class LocationManager extends ChildActivity implements GoogleApiClient.Co
     private LocationRequest locationRequest;
     private String username = null;
 
-    protected TextView latitudeText, longitudeText;
-
     static Double myLatitude, myLongitude;
 
-    public LocationManager(Context appContext){
+    public LocationManager(Context appContext) {
 
         context = appContext;
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         Gson gson = new Gson();
         String json = sharedPreferences.getString("username", null);
-        Type type = new TypeToken<String>() {}.getType();
+        Type type = new TypeToken<String>() {
+        }.getType();
         username = gson.fromJson(json, type);
 
-        googleApiClient = new GoogleApiClient.Builder(context).addApi(LocationServices.API)
+        googleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this).build();
+                .addOnConnectionFailedListener(this)
+                .build();
 
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(60*1000); //in milliseconds -- = 1 min
+        locationRequest.setInterval(60 * 1000); //in milliseconds -- = 1 min
         locationRequest.setFastestInterval(1000); // 1 sec
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        googleApiClient.connect();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
         requestLocationUpdates();
     }
 
@@ -115,9 +117,7 @@ public class LocationManager extends ChildActivity implements GoogleApiClient.Co
     public void onLocationChanged(Location location) {
         myLatitude = location.getLatitude();
         myLongitude = location.getLongitude();
-        latitudeText.setText("Latitude: " + String.valueOf(myLatitude));
-        longitudeText.setText("Longitude: " + String.valueOf(myLongitude));
-        Toast.makeText(this, "onLocationChanged", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "onLocationChanged", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -171,4 +171,5 @@ public class LocationManager extends ChildActivity implements GoogleApiClient.Co
             return myLongitude;
         }
     }
+
 }
