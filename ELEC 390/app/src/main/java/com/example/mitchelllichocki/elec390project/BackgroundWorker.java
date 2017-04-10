@@ -72,7 +72,7 @@ public class BackgroundWorker{
                         editor.putString("username", json);
                         editor.commit();
 
-                        //Intent childService = new Intent(context,  ChildService.class);
+                        //Intent childService = new Intent(ChildActivity,  ChildService.class);
                         //childService.putExtra("username", username);
 
                         //context.startService(childService);
