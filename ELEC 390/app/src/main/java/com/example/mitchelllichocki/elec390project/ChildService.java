@@ -29,7 +29,7 @@ public class ChildService extends Service {
         }
         final Handler handler = new Handler();
         final int refreshRate = 1000*10;
-        final LocationService locationService = new LocationService("name");
+        final LocationService locationService = new LocationService();
 
         handler.postDelayed(new Runnable() {
             @Override
