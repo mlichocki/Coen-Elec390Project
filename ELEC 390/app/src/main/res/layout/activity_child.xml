@@ -11,6 +11,7 @@
     tools:context="com.example.mitchelllichocki.elec390project.ChildActivity">
 
     <Button
+<<<<<<< HEAD
         android:text="coordinates"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,6 +23,8 @@
         android:id="@+id/coordinatesButton3" />
 
     <Button
+=======
+>>>>>>> 70951e3ad1c97bdf69feb7522031973133568800
         android:text="Add Emergency Contact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
