@@ -44,6 +44,7 @@ public class ChildService extends Service {
         final Handler handler = new Handler();
         final int refreshRate = 1000*10;
 
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run(){

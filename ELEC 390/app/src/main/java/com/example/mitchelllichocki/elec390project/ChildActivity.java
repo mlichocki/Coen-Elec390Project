@@ -3,6 +3,8 @@ package com.example.mitchelllichocki.elec390project;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,7 +21,6 @@ import java.lang.reflect.Type;
 public class ChildActivity extends AppCompatActivity {
 
     Button add_contact;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +48,9 @@ public class ChildActivity extends AppCompatActivity {
         add_contact.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v) {
-
                 Intent a = new Intent(ChildActivity.this, AddingContact.class);
                 startActivity(a);
             }
-
 
         });
 

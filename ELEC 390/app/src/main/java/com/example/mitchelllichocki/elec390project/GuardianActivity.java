@@ -68,12 +68,14 @@ public class GuardianActivity extends AppCompatActivity {
             }
         });
 
+
      /*   showNotificationBtn.setOnClickListener(new View.OnClickListener() {
 
             public void onClick (View v){
                 //finish();
                 Notifs.showNotification(context, NotificationID);
             }
+
         });
         */
 

@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  * Created by Felix on 2017-04-03.
- */
+
 
 public class Notifications {
 
@@ -50,3 +50,4 @@ public class Notifications {
 
     }
 }
+*/
