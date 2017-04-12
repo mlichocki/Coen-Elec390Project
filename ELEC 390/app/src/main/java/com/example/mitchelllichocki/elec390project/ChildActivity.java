@@ -1,5 +1,7 @@
 package com.example.mitchelllichocki.elec390project;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 
 
@@ -9,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,10 +33,15 @@ public class ChildActivity extends AppCompatActivity {
         Type type = new TypeToken<String>() {}.getType();
         String username = gson.fromJson(json, type);
 
-
-        Intent childService = new Intent(this, ChildService.class);
-        childService.putExtra("username", username);
-        startService(childService);
+        if(!isServiceRunning(NotificationService.class)) {
+            Intent childService = new Intent(this, ChildService.class);
+            childService.putExtra("username", username);
+            startService(childService);
+            Toast.makeText(this, "NotificationService Started", Toast.LENGTH_SHORT);
+        }
+        else{
+            Toast.makeText(this, "NotificationService Stopped", Toast.LENGTH_SHORT);
+        }
 
 
         add_contact = (Button) findViewById(R.id.AddContact);
@@ -46,5 +54,18 @@ public class ChildActivity extends AppCompatActivity {
 
         });
 
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass){
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+
+        // Loop through the running services
+        for(ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                // If the service is running then return true
+                return true;
+            }
+        }
+        return false;
     }
 }
