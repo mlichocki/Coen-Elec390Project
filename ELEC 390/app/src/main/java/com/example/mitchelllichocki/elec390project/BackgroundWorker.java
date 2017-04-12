@@ -14,9 +14,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -186,8 +183,7 @@ public class BackgroundWorker{
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 Gson gson = new Gson();
                 String json = sharedPreferences.getString("children", null);
-                Type type = new TypeToken<ArrayList<String>>() {
-                }.getType();
+                Type type = new TypeToken<ArrayList<String>>() {}.getType();
                 ArrayList<String> children = gson.fromJson(json, type);
 
                 try {

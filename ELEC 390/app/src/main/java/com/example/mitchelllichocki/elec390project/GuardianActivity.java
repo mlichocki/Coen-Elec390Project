@@ -1,13 +1,12 @@
 package com.example.mitchelllichocki.elec390project;
 
-import android.app.NotificationManager;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.view.View;
 import android.widget.Button;
 
@@ -37,14 +36,19 @@ public class GuardianActivity extends AppCompatActivity {
         Type type = new TypeToken<String>() {}.getType();
         username = gson.fromJson(json, type);
 
-        Intent intent = new Intent(GuardianActivity.this, NotificationService.class);
-        intent.putExtra("username", username);
-        startService(intent);
+        if(!isServiceRunning(NotificationService.class)) {
+            Intent intent = new Intent(GuardianActivity.this, NotificationService.class);
+            intent.putExtra("username", username);
+            startService(intent);
+            //Toast.makeText(this, "NotificationService Started", Toast.LENGTH_SHORT);
+        }
+        else{
+            //Toast.makeText(this, "NotificationService Stopped", Toast.LENGTH_SHORT);
+        }
 
         //showNotificationBtn = (Button) findViewById(R.id.showNotif);
         Button btn = (Button)findViewById(R.id.Add_Child);
         //Notifs.InitializeNotifications();
-        final Context context = this;
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,4 +90,16 @@ public class GuardianActivity extends AppCompatActivity {
     }
 */
 
+    private boolean isServiceRunning(Class<?> serviceClass){
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+
+        // Loop through the running services
+        for(ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                // If the service is running then return true
+                return true;
+            }
+        }
+        return false;
+    }
 }
