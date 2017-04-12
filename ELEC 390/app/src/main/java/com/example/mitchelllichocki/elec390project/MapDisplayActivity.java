@@ -46,7 +46,7 @@ public class MapDisplayActivity extends AppCompatActivity
         implements OnMapReadyCallback {
 
     double latitude = 1000, longitude = 1000;
-    int test;
+    int refreshRate = 1000 * 10;
     Marker marker = null;
     GoogleMap map;
     ArrayList<String> names = new ArrayList<>(), childrenUsername = new ArrayList<>();
@@ -59,6 +59,15 @@ public class MapDisplayActivity extends AppCompatActivity
     private List<DraggableCircle> mCircles = new ArrayList<>(1);
     boolean initialization = true;
     BackgroundWorker backgroundWorker = new BackgroundWorker(this);
+    public Handler handler = new Handler();
+    public Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            updateMapDisplay(childSelected);
+            //Run this script every 10 seconds
+            handler.postDelayed(this, refreshRate);
+        }
+    };;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +80,9 @@ public class MapDisplayActivity extends AppCompatActivity
         //Assign the map to the fragment
         mapFragment.getMapAsync(MapDisplayActivity.this);
 
-        final int refreshRate = 1000 * 100; //Time rates are in milliseconds
-
         //If this is the first instance of the activity starting
         if (savedInstanceState == null) {
-            ArrayList<String> tempChildren;
+            ArrayList<String> tempChildren = new ArrayList<>();
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             Gson gson = new Gson();
@@ -86,18 +93,23 @@ public class MapDisplayActivity extends AppCompatActivity
             type = new TypeToken<String>() {}.getType();
             username = gson.fromJson(json, type);
 
-            if (tempChildren != null) {
+           // if (tempChildren != null) {
                 for (int i = 0; i < tempChildren.size(); i++) {
                     names.add(tempChildren.get(i));
                     childrenUsername.add(tempChildren.get(++i));
                 }
-            }
+            //}
             //If not the first instance then restore from previous instance
         } else {
             onRestoreInstanceState(savedInstanceState);
         }
         //By default the first child in the ArrayList is displayed
-        childSelected = names.get(0);
+        if(!names.isEmpty()) {
+            childSelected = names.get(0);
+        }
+        else{
+            childSelected = null;
+        }
 
         //set the back button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -131,16 +143,16 @@ public class MapDisplayActivity extends AppCompatActivity
         });
 
         //Continually refresh the map every refreshRate seconds
-        final Handler handler = new Handler();
 
-        handler.postDelayed(new Runnable() {
+
+        runnable = new Runnable() {
             @Override
             public void run() {
                 updateMapDisplay(childSelected);
                 //Run this script every 10 seconds
                 handler.postDelayed(this, refreshRate);
             }
-        }, 1000); //mapLoadTime is the delay for the map to load
+        };
 
     }
 
@@ -291,26 +303,30 @@ public class MapDisplayActivity extends AppCompatActivity
 
     //Retrieve the latitude and longitude of the most recent position
     public void getLatLong(String name){
-        BackgroundWorker backgroundWorker = new BackgroundWorker(MapDisplayActivity.this);
-        backgroundWorker.fetchCoordinates(username, childrenUsername.get(names.indexOf(name)), new BackgroundWorker.VolleyCallback() {
-            @Override
-            public void onSuccess(String response) {
-                try{
-                    JSONObject jsonObject = new JSONObject(response);
-                    if( jsonObject.isNull("latitude") || jsonObject.isNull("longitude") ){
-                        latitude = 1000;
-                        longitude = 1000;
-                    }
-                    else {
-                        latitude = Double.parseDouble(jsonObject.getString("latitude"));
-                        longitude = Double.parseDouble(jsonObject.getString("longitude"));
+        if(childSelected == null){
+            latitude = 1000;
+            longitude = 1000;
+        }
+        else {
+            BackgroundWorker backgroundWorker = new BackgroundWorker(MapDisplayActivity.this);
+            backgroundWorker.fetchCoordinates(username, childrenUsername.get(names.indexOf(name)), new BackgroundWorker.VolleyCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.isNull("latitude") || jsonObject.isNull("longitude")) {
+                            latitude = 1000;
+                            longitude = 1000;
+                        } else {
+                            latitude = Double.parseDouble(jsonObject.getString("latitude"));
+                            longitude = Double.parseDouble(jsonObject.getString("longitude"));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
-                catch(JSONException e){
-                    e.printStackTrace();
-                }
-            }
-        });
+            });
+        }
     }
 
     //Save the following data when the activity is exited
@@ -388,6 +404,25 @@ public class MapDisplayActivity extends AppCompatActivity
         float[] result = new float[1];
         Location.distanceBetween(center.latitude, center.longitude, radius.latitude, radius.longitude, result);
         return result[0];
+    }
+
+    @Override
+    public void onDestroy(){
+        handler.removeCallbacks(runnable);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        handler.removeCallbacks(runnable);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        handler.postDelayed(runnable, 5000);
+        super.onResume();
     }
 
 }
