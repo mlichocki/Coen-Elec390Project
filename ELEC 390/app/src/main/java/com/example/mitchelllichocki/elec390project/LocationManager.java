@@ -74,7 +74,7 @@ public class LocationManager extends Activity implements GoogleApiClient.Connect
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //if location permissions are not granted - then ask for them
             Log.d("LocationManager", "permissions NOT granted");
-            ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}, 390);
+            ActivityCompat.requestPermissions((Activity) context , new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}, 390);
             //Toast.makeText(context, "permissions NOT granted - DOING something!", Toast.LENGTH_SHORT).show();
         }else{
             Log.d("LocationManager", "permissions granted");
