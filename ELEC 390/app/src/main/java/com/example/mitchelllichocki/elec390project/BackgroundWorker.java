@@ -95,7 +95,12 @@ public class BackgroundWorker{
         new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error){
-            Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show(); //Error here, Beware!!!!!
+                if(error instanceof TimeoutError) {
+                    Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                }
             }
 
         }) {
@@ -158,7 +163,12 @@ public class BackgroundWorker{
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error){
-                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                        if(error instanceof TimeoutError) {
+                            Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }) {
@@ -246,7 +256,12 @@ public class BackgroundWorker{
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error){
-                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                        if(error instanceof TimeoutError) {
+                            Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }) {
@@ -303,7 +318,12 @@ public class BackgroundWorker{
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error){
-                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                        if(error instanceof TimeoutError) {
+                            Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }) {
@@ -378,7 +398,12 @@ public class BackgroundWorker{
 
                     @Override
                     public void onErrorResponse(VolleyError error){
-                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                        if(error instanceof TimeoutError) {
+                            Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }){
 
@@ -425,7 +450,12 @@ public class BackgroundWorker{
                 new Response.ErrorListener(){
                     @Override
                     public void onErrorResponse(VolleyError error){
-                        Toast.makeText(context,error.getMessage().toString(),Toast.LENGTH_SHORT).show();
+                        if(error instanceof TimeoutError) {
+                            Toast.makeText(context, "Server timeout error!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(context, error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }) {
