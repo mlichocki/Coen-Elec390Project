@@ -45,7 +45,7 @@
             android:exported="true"
             android:process=":ServiceProcess" />
 
-        <activity android:name=".AddingContact" />
+        <activity android:name=".EmergencyContactsActivity" />
 
         <service
             android:name=".NotificationService"

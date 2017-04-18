@@ -48,7 +48,7 @@ public class ChildActivity extends AppCompatActivity {
         add_contact.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v) {
-                Intent a = new Intent(ChildActivity.this, AddingContact.class);
+                Intent a = new Intent(ChildActivity.this, EmergencyContactsActivity.class);
                 startActivity(a);
             }
 

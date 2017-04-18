@@ -14,7 +14,7 @@ import android.widget.Toast;
 import android.net.Uri;
 
 
-public class AddingContact extends AppCompatActivity {
+public class EmergencyContactsActivity extends AppCompatActivity {
 
     protected    EditText Name1;
     protected    EditText Number1;
