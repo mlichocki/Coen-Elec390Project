@@ -11,7 +11,7 @@
     tools:context="com.example.mitchelllichocki.elec390project.ChildActivity">
 
     <Button
-        android:text="Add Emergency Contact"
+        android:text="Emergency Contacts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#ffff"
